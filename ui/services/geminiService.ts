@@ -17,7 +17,7 @@ export const sendMessageToGemini = async (prompt: string, history: string[] = []
     // Here we will use generateContent with a constructed prompt for simplicity in this stateless service wrapper,
     // or ideally use ai.chats.create if we were persisting the chat object. 
     // To keep it simple and robust for this demo:
-    
+
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MODEL_NAME,
       contents: prompt, // In a real app, you'd format 'contents' to include history.
@@ -39,7 +39,7 @@ export const sendMessageToGemini = async (prompt: string, history: string[] = []
 export const analyzePostSentiment = async (postContent: string): Promise<string> => {
   try {
     const prompt = `Analyze the sentiment of this social media post. Reply with only one word: Positive, Negative, or Neutral. Post: "${postContent}"`;
-    
+
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MODEL_NAME,
       contents: prompt,

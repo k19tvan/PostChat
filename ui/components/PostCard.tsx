@@ -43,7 +43,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
   };
 
   return (
-    <div className={`bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-700/50 shadow-xl overflow-hidden hover:border-slate-600 transition-all ${deleting ? 'opacity-50 scale-95' : ''}`}>
+    <div className={`bg-white/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-xl overflow-hidden hover:border-slate-300 dark:hover:border-slate-600 transition-all ${deleting ? 'opacity-50 scale-95' : ''}`}>
 
       {/* Header */}
       <div className="p-4 flex items-start justify-between">
@@ -55,17 +55,17 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
           />
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-white text-sm">{post.authorName}</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-white text-sm">{post.authorName}</h3>
               {post.category && (
-                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-300 text-[10px] font-bold rounded uppercase tracking-wider border border-indigo-500/20">
+                <span className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold rounded uppercase tracking-wider border border-indigo-200 dark:border-indigo-500/20">
                   {post.category}
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
               <span title={post.timestamp}>{new Date(post.timestamp).toLocaleDateString()}</span>
               <span>•</span>
-              <a href={post.url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 flex items-center gap-1">
+              <a href={post.url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1">
                 <Globe size={12} />
               </a>
             </div>
@@ -75,9 +75,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
         <div className="flex items-center gap-2">
           {/* Sentiment Badge (if pre-calculated) */}
           {sentiment && (
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sentiment.toLowerCase().includes('positive') ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                sentiment.toLowerCase().includes('negative') ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                  'bg-slate-500/10 text-slate-400 border-slate-500/20'
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sentiment.toLowerCase().includes('positive') ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/20' :
+              sentiment.toLowerCase().includes('negative') ? 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/20' :
+                'bg-slate-100 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-500/20'
               }`}>
               {sentiment}
             </span>
@@ -86,7 +86,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded-lg hover:bg-slate-700/50"
+            className="p-1.5 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50"
             title="Delete from saved"
           >
             <MoreHorizontal size={18} />
@@ -96,18 +96,18 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
 
       {/* AI Summary Section (Highlighted) */}
       {post.summary && (
-        <div className="mx-4 mb-3 p-3 bg-indigo-900/10 border border-indigo-500/20 rounded-xl">
+        <div className="mx-4 mb-3 p-3 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl">
           <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="text-xs font-bold text-indigo-300 uppercase tracking-wide">AI Summary</span>
+            <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-300 uppercase tracking-wide">AI Summary</span>
           </div>
-          <p className="text-sm text-indigo-100/90 leading-relaxed font-medium">
+          <p className="text-sm text-indigo-900 dark:text-indigo-100/90 leading-relaxed font-medium">
             {post.summary}
           </p>
           {post.topics && post.topics.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2.5">
               {post.topics.map((topic, i) => (
-                <span key={i} className="px-2 py-0.5 bg-indigo-500/10 text-indigo-300 text-[10px] rounded-md font-medium">
+                <span key={i} className="px-2 py-0.5 bg-white dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-[10px] rounded-md font-medium border border-indigo-100 dark:border-transparent">
                   #{topic}
                 </span>
               ))}
@@ -118,7 +118,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
 
       {/* Original Content */}
       <div className="px-4 pb-3">
-        <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-line">
+        <div className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line">
           {shouldTruncate && !isExpanded
             ? `${post.content.substring(0, MAX_CHAR_LIMIT)}...`
             : post.content}
@@ -126,7 +126,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
           {shouldTruncate && (
             <button
               onClick={toggleExpand}
-              className="ml-1 text-indigo-400 hover:text-indigo-300 font-medium text-xs hover:underline focus:outline-none"
+              className="ml-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium text-xs hover:underline focus:outline-none"
             >
               {isExpanded ? 'Show less' : 'Read more'}
             </button>
@@ -140,7 +140,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
           <div className={`grid gap-2 ${post.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {post.media.map((media: MediaItem, index: number) => (
               <div key={index} className="relative group">
-                <div className="rounded-xl overflow-hidden border border-slate-700/50 bg-slate-900/50">
+                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/50">
                   {media.type === 'video' ? (
                     <div className="relative aspect-video bg-black flex items-center justify-center">
                       <span className="text-xs text-slate-500">Video Preview Placeholder</span>
@@ -170,7 +170,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
 
                 {/* OCR Text Display */}
                 {showOcr[index] && media.ocr_text && (
-                  <div className="mt-2 p-3 bg-slate-900/80 rounded-lg border border-slate-700/50 text-xs text-slate-300 font-mono overflow-x-auto">
+                  <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700/50 text-xs text-slate-600 dark:text-slate-300 font-mono overflow-x-auto">
                     <div className="flex items-center justify-between mb-1 opacity-60">
                       <span className="text-[10px] uppercase font-bold">Extracted Text</span>
                     </div>
@@ -185,11 +185,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
 
       {/* Manual Analysis Fallback (only if not pre-calculated) */}
       {!post.sentiment && (
-        <div className="px-4 py-2 border-t border-slate-700/30">
+        <div className="px-4 py-2 border-t border-slate-200 dark:border-slate-700/30">
           <button
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="w-full py-1.5 text-xs text-indigo-300 hover:text-indigo-200 hover:bg-indigo-900/20 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full py-1.5 text-xs text-indigo-600 dark:text-indigo-300 hover:text-indigo-500 dark:hover:text-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <Sparkles size={12} />
             {analyzing ? 'Analyzing sentiment...' : 'Analyze Sentiment'}
@@ -198,10 +198,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
       )}
 
       {/* Footer Stats & Actions */}
-      <div className="border-t border-slate-700/50">
-        <div className="px-4 py-3 flex items-center justify-between text-xs text-slate-400">
+      <div className="border-t border-slate-200 dark:border-slate-700/50">
+        <div className="px-4 py-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-slate-300">
+            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
               <ThumbsUp size={12} />
               <span>{post.likes}</span>
             </div>
@@ -227,7 +227,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
 };
 
 const ActionButton: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, label }) => (
-  <button className="flex items-center justify-center gap-2 py-2 text-slate-400 hover:bg-slate-700/30 hover:text-indigo-400 rounded-lg transition-all group">
+  <button className="flex items-center justify-center gap-2 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/30 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all group">
     <div className="group-hover:scale-110 transition-transform">
       {icon}
     </div>

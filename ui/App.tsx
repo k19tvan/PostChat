@@ -14,6 +14,10 @@ const App: React.FC = () => {
     const savedMode = localStorage.getItem('appMode');
     return (savedMode as AppMode) || AppMode.CONVERSATION;
   });
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return (savedTheme as 'dark' | 'light') || 'dark';
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -22,6 +26,15 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('appMode', currentMode);
   }, [currentMode]);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   useEffect(() => {
     // Check active session
@@ -60,7 +73,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-[100dvh] w-full bg-slate-950 text-slate-100 overflow-hidden font-sans selection:bg-indigo-500/30">
+    <div className="flex h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden font-sans selection:bg-indigo-500/30 transition-colors duration-300">
 
       {/* Desktop Navigation */}
       <Navigation
@@ -68,22 +81,24 @@ const App: React.FC = () => {
         onModeChange={setCurrentMode}
         onLogout={handleLogout}
         user={user}
+        theme={theme}
+        toggleTheme={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
       />
 
       {/* Main Content Wrapper */}
       <div className="flex-1 flex flex-col relative overflow-hidden min-w-0">
 
         {/* Mobile Header */}
-        <div className="md:hidden flex-none z-50 bg-[#0b0e14] border-b border-slate-800 p-4 flex justify-between items-center shrink-0">
+        <div className="md:hidden flex-none z-50 bg-white dark:bg-[#0b0e14] border-b border-slate-200 dark:border-slate-800 p-4 flex justify-between items-center shrink-0 transition-colors duration-300">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
               <span className="text-white font-bold text-sm">P</span>
             </div>
-            <span className="font-bold text-white">PostChat</span>
+            <span className="font-bold text-slate-900 dark:text-white">PostChat</span>
           </div>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-slate-300 p-2 hover:bg-slate-800 rounded-lg"
+            className="text-slate-600 dark:text-slate-300 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -91,17 +106,17 @@ const App: React.FC = () => {
 
         {/* Mobile Menu Dropdown Overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute inset-0 z-40 bg-slate-950 pt-20 px-6">
+          <div className="md:hidden absolute inset-0 z-40 bg-slate-50 dark:bg-slate-950 pt-20 px-6">
             <div className="flex flex-col gap-4">
               <button
                 onClick={() => { setCurrentMode(AppMode.CONVERSATION); setMobileMenuOpen(false); }}
-                className={`p-4 rounded-xl text-left font-medium border ${currentMode === AppMode.CONVERSATION ? 'bg-indigo-900/20 border-indigo-500/50 text-indigo-400' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                className={`p-4 rounded-xl text-left font-medium border ${currentMode === AppMode.CONVERSATION ? 'bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-500/50 text-indigo-600 dark:text-indigo-400' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}
               >
                 Conversation Mode
               </button>
               <button
                 onClick={() => { setCurrentMode(AppMode.POSTS); setMobileMenuOpen(false); }}
-                className={`p-4 rounded-xl text-left font-medium border ${currentMode === AppMode.POSTS ? 'bg-indigo-900/20 border-indigo-500/50 text-indigo-400' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                className={`p-4 rounded-xl text-left font-medium border ${currentMode === AppMode.POSTS ? 'bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-500/50 text-indigo-600 dark:text-indigo-400' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}
               >
                 Feed Analyzer
               </button>
@@ -116,13 +131,13 @@ const App: React.FC = () => {
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col relative w-full overflow-hidden min-h-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 -z-10" />
+        <main className="flex-1 flex flex-col relative w-full overflow-hidden min-h-0 bg-slate-50 dark:bg-transparent transition-colors duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 -z-10 transition-colors duration-300" />
 
           {currentMode === AppMode.CONVERSATION ? (
-            <ChatInterface />
+            <ChatInterface theme={theme} />
           ) : (
-            <PostFeed />
+            <PostFeed theme={theme} />
           )}
         </main>
       </div>

@@ -134,6 +134,14 @@ class SearchRequest(BaseModel):
     limit: int = 10
     advanced_mode: bool = False
 
+class ChatMessage(BaseModel):
+    role: str
+    text: str
+
+class ChatRequest(BaseModel):
+    message: str
+    conversation_history: List[ChatMessage] = []
+
 # --- Helper Functions ---
 
 def get_gemini_extractor():
@@ -142,7 +150,7 @@ def get_gemini_extractor():
         raise HTTPException(500, "Server Error: GOOGLE_API_KEY/GEMINI_API_KEY not set")
         
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash-lite", # Fast and capable for extraction
+        model="gemini-1.5-flash", # Fast and capable for extraction
         google_api_key=GOOGLE_API_KEY,
         temperature=0.1, # Low temperature for factual extraction
         max_retries=2
@@ -299,8 +307,7 @@ async def search_posts_v2(request: SearchRequest):
                 'match_documents',
                 {
                     'query_embedding': query_embedding,
-                    'filter': {},
-                    'match_count': request.limit * 3  # Get more chunks to find unique posts
+                    'match_count': request.limit * 3
                 }
             ).execute()
             
@@ -335,6 +342,89 @@ async def search_posts_v2(request: SearchRequest):
             return {"success": True, "data": response.data}
     except Exception as e:
         print(f"❌ Search error: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    """Chat endpoint with RAG using the vector store."""
+    try:
+        if not GOOGLE_API_KEY:
+            raise HTTPException(500, "Gemini API key not configured")
+
+        # 1. Search for relevant context if available
+        context_docs = []
+        if embeddings and supabase_client:
+            try:
+                # Perform manual semantic search to avoid library compatibility issues
+                query_embedding = embeddings.embed_query(request.message)
+                rpc_response = supabase_client.rpc(
+                    'match_documents',
+                    {
+                        'query_embedding': query_embedding,
+                        'match_count': 3
+                    }
+                ).execute()
+                
+                for item in rpc_response.data:
+                    context_docs.append(Document(
+                        page_content=item.get('content', ''),
+                        metadata=item.get('metadata', {})
+                    ))
+            except Exception as e:
+                print(f"⚠ Search for context failed: {e}")
+
+        # 2. Build the prompt
+        context_text = "\n\n".join([f"Source {i+1}:\n{doc.page_content}" for i, doc in enumerate(context_docs)])
+        
+        system_prompt = """You are a helpful AI assistant for a social media dashboard. 
+        Your goal is to help users understand and analyze their saved Facebook posts.
+        
+        When answering, use the provided context from the user's saved posts if relevant.
+        If the information isn't in the context, use your general knowledge but mention you're doing so.
+        Be concise, professional, and friendly.
+        """
+        
+        if context_text:
+            system_prompt += f"\n\nContext from saved posts:\n{context_text}"
+
+        # 3. Initialize LLM
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash-lite",
+            google_api_key=GOOGLE_API_KEY,
+            temperature=0.7
+        )
+
+        # 4. Prepare messages (including history)
+        messages = [("system", system_prompt)]
+        
+        # Add history (truncate to last 5 turns to save tokens/context)
+        for msg in request.conversation_history[-10:]:
+            role = "human" if msg.role == "user" else "ai"
+            messages.append((role, msg.text))
+            
+        messages.append(("human", request.message))
+
+        # 5. Get response
+        response = await llm.ainvoke(messages)
+        print(response)
+        
+        # 6. Format sources for the frontend
+        sources = []
+        for doc in context_docs:
+            sources.append({
+                "content": doc.page_content[:200] + "...",
+                "metadata": doc.metadata,
+                "similarity_score": 0.9 # placeholder for simplified similarity
+            })
+
+        return {
+            "success": True, 
+            "response": response.content,
+            "sources": sources
+        }
+
+    except Exception as e:
+        print(f"❌ Chat error: {e}")
         return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":
