@@ -51,6 +51,7 @@ wheels/
 test.json
 test.py
 test_*.py
+test2.json
 
 # OS
 .DS_Store
