@@ -1,0 +1,64 @@
+{
+    "facebookUrl": "https://www.facebook.com/share/p/1B22H9ij2y/",
+    "postId": "1528229314939538",
+    "pageName": "vietnh1009",
+    "url": "https://www.facebook.com/vietnh1009/posts/pfbid02CSJ3ypX4X1A34eA9TR2BcaQvhs3nJAV43kKtxhcn4H5xf4RmdbArfef8xNrfraSsl",
+    "time": "2026-02-15T13:00:07.000Z",
+    "timestamp": 1771160407,
+    "user": {
+        "id": "100032574519276",
+        "name": "Vi\u1ec7t Nguy\u1ec5n AI",
+        "profilePic": "https://scontent.fsci1-2.fna.fbcdn.net/v/t39.30808-1/492136584_1306595023769636_6181017656097453882_n.jpg?stp=cp0_dst-jpg_s50x50_tt6&_nc_cat=1&ccb=1-7&_nc_sid=1d2534&_nc_ohc=_lkPAzuUa8QQ7kNvwFX9jQB&_nc_oc=AdmEiW14QDd15AeMi6pImbsG4d-zHjLgqmfTnnpUh61UqN3i1Rf-e3mmsQCL2EyaDZQ&_nc_zt=24&_nc_ht=scontent.fsci1-2.fna&_nc_gid=ztb8dbqL0nChlep8jy0awg&oh=00_Afv7rWAcYgjoT_WceQ0E34k7LbFjFEI6I15OOu3vxwswRQ&oe=6997B190"
+    },
+    "collaborators": [],
+    "text": "Zvec - vector database m\u1edbi c\u1ee7a Alibaba \ud83d\ude80\n\nAlibaba v\u1eeba cho ra m\u1eaft Zvec -  vector database d\u00e0nh cho RAG \n\nTa c\u00f3 th\u1ec3 ch\u1ea1y Zvec ngay trong \u1ee9ng d\u1ee5ng (embedded/in-process) n\u00ean:\n\n\u2705 Kh\u00f4ng c\u1ea7n server\n\u2705 Kh\u00f4ng ph\u1ea3i lo l\u1eafng v\u1ec1 \u0111\u1ed9 tr\u1ec5 m\u1ea1ng \n\u2705 Kh\u00f4ng c\u1ea7n c\u00f3 vector DB cloud \u2601\ufe0f\n\nZvec h\u01b0\u1edbng t\u1edbi c\u00e1c use case on-device RAG, semantic search local, edge AI agents - ch\u1ea1y t\u1ed1t tr\u00ean laptop/desktop/edge hardware.\n\nZvec c\u00f3 CRUD \u0111\u1ea7y \u0111\u1ee7, hybrid search (scalar + vector), multi-vector retrieval, reranking t\u00edch h\u1ee3p, v\u00e0 l\u01b0u tr\u1eef an to\u00e0n khi crash.\n\nHi\u1ec7u n\u0103ng c\u0169ng \u1ea5n t\u01b0\u1ee3ng: 8,000+ QPS tr\u00ean VectorDBBench, v\u00e0 ~2\u00d7 so v\u1edbi top 1 tr\u01b0\u1edbc \u0111\u00f3 (setup t\u01b0\u01a1ng \u0111\u01b0\u01a1ng).\n\nLink repo: https://github.com/alibaba/zvec",
+    "textReferences": [
+        {
+            "url": "https://l.facebook.com/l.php?u=https%3A%2F%2Fgithub.com%2Falibaba%2Fzvec&h=AT2DWZkD-OhGdYxXf_nrSc-Tx8uokgztUImz7Qzre_6uQ6hVGAWaJWyfqtJ6K-LO6o2zr9O11Qk0g4tmlJLJep8vFx5N4YzaZO4zRXqmgLOODgF-Mxofz_0lbdm1l4myZTuDZoveHTOb7FX30GfZTaldFHcZ4bFy&s=1",
+            "external_url": "https://github.com/alibaba/zvec",
+            "web_link": {
+                "__typename": "ExternalWebLink",
+                "url": "https://github.com/alibaba/zvec",
+                "fbclid": null,
+                "lynx_mode": "ASYNCLAZY"
+            },
+            "mobileUrl": "https://lm.facebook.com/l.php?u=https%3A%2F%2Fgithub.com%2Falibaba%2Fzvec&h=AT0jFlhaaniRXLKqc-i0wLwPD2-gNwpuCjhOBbOcIBhYpiIVUbRhBwJnTnF9QjiIe1lHXWB1BfJNc7N_bP9UzjB-ou9-wpTyeM0Ap1k1CZ8Pj2hsHgg6YL_Jgb0yHtBt8_q7XZGg3xKQXG12ARCnoc0gCYLsC5_G&s=1",
+            "id": "NjQyMTgzOTU5MjA4MTA3Omh0dHBzXGEvL2dpdGh1Yi5jb20vYWxpYmFiYS96dmVjOjpEZWZhdWx0Ojo6MTUyODIyOTMxNDkzOTUzOA=="
+        }
+    ],
+    "link": "https://github.com/alibaba/zvec",
+    "likes": 99,
+    "shares": 45,
+    "topReactionsCount": 4,
+    "media": [
+        {
+            "thumbnail": "https://scontent.fsci1-2.fna.fbcdn.net/v/t39.30808-6/633198113_1528226138273189_9011014400077658985_n.jpg?stp=dst-jpg_p180x540_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=W08KjmbpjfQQ7kNvwG-s7Al&_nc_oc=AdmH4h64Id24e2WNc15Mpn_Go_p4Vx2hYGeWQxZRb3Cg_D3H0d6rt3-7ikzdSZU36VY&_nc_zt=23&_nc_ht=scontent.fsci1-2.fna&_nc_gid=ztb8dbqL0nChlep8jy0awg&oh=00_AfvLweLm7LSJUVAkiqkhvPBVX4r-h-tV5tya2cqXeYO8_Q&oe=6997AEA4",
+            "__typename": "Photo",
+            "__isMedia": "Photo",
+            "accent_color": "FF0E1118",
+            "photo_product_tags": [],
+            "photo_image": {
+                "uri": "https://scontent.fsci1-2.fna.fbcdn.net/v/t39.30808-6/633198113_1528226138273189_9011014400077658985_n.jpg?stp=dst-jpg_p180x540_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=W08KjmbpjfQQ7kNvwG-s7Al&_nc_oc=AdmH4h64Id24e2WNc15Mpn_Go_p4Vx2hYGeWQxZRb3Cg_D3H0d6rt3-7ikzdSZU36VY&_nc_zt=23&_nc_ht=scontent.fsci1-2.fna&_nc_gid=ztb8dbqL0nChlep8jy0awg&oh=00_AfvLweLm7LSJUVAkiqkhvPBVX4r-h-tV5tya2cqXeYO8_Q&oe=6997AEA4",
+                "height": 540,
+                "width": 716
+            },
+            "url": "https://www.facebook.com/photo/?fbid=1528226134939856&set=a.170917870670696",
+            "id": "1528226134939856",
+            "feedback": {
+                "can_viewer_comment": false,
+                "id": "ZmVlZGJhY2s6MTUyODIyOTMxNDkzOTUzOA=="
+            },
+            "ocrText": "May be an image of text"
+        }
+    ],
+    "feedbackId": "ZmVlZGJhY2s6MTUyODIyOTMxNDkzOTUzOA==",
+    "reactionLikeCount": 96,
+    "reactionLoveCount": 1,
+    "reactionCareCount": 1,
+    "reactionWowCount": 1,
+    "facebookId": "UzpfSTEwMDAzMjU3NDUxOTI3NjoxNTI4MjI5MzE0OTM5NTM4OjE1MjgyMjkzMTQ5Mzk1Mzg=",
+    "pageAdLibrary": {
+        "is_business_page_active": false,
+        "id": "119051214634221"
+    }
+}

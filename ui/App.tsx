@@ -9,10 +9,19 @@ import { Menu, X } from 'lucide-react';
 import { supabase } from './services/supabaseClient';
 
 const App: React.FC = () => {
-  const [currentMode, setCurrentMode] = useState<AppMode>(AppMode.CONVERSATION);
+  const [currentMode, setCurrentMode] = useState<AppMode>(() => {
+    // Restore mode from localStorage on initial load
+    const savedMode = localStorage.getItem('appMode');
+    return (savedMode as AppMode) || AppMode.CONVERSATION;
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+
+  // Persist mode changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('appMode', currentMode);
+  }, [currentMode]);
 
   useEffect(() => {
     // Check active session
