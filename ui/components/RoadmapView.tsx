@@ -297,16 +297,14 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ theme = 'dark' }) => {
         }
 
         .rm-logo-mark {
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
-          background: linear-gradient(135deg, #7c6dfa, #a78bfa);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          box-shadow: 0 0 20px rgba(124,109,250,0.35);
+          width: 44px;
+          height: 44px;
           flex-shrink: 0;
+        }
+        .rm-logo-mark img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
         }
 
         .rm-logo-text {
@@ -1097,7 +1095,9 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ theme = 'dark' }) => {
 
         <header className="rm-header">
           <div className="rm-logo">
-            <div className="rm-logo-mark">◈</div>
+            <div className="rm-logo-mark">
+              <img src="/logo.png" alt="Logo" />
+            </div>
             <div className="rm-logo-text">
               <div className="rm-logo-title">Pathfinder</div>
               <div className="rm-logo-sub">learning roadmap</div>

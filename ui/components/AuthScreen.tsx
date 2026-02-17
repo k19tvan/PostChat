@@ -101,8 +101,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
 
                 {/* ── Header Section ── */}
                 <div className="flex flex-col items-center mb-8 text-center animate-in fade-in zoom-in duration-500">
-                    <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center shadow-[0_0_40px_-10px_var(--accent)] mb-5 hover:scale-105 transition-transform duration-300">
-                        <Activity className="text-white w-8 h-8" strokeWidth={2.5} />
+                    <div className="w-20 h-20 flex items-center justify-center mb-5 hover:scale-105 transition-transform duration-300">
+                        <img src="/logo.png" alt="PostChat Logo" className="w-full h-full object-contain drop-shadow-2xl" />
                     </div>
                     <h1 className="text-4xl font-extrabold text-[var(--text)] tracking-tight font-['Syne'] mb-2">
                         PostChat

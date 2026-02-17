@@ -15,8 +15,8 @@ export const Navigation: React.FC<NavigationProps> = ({ currentMode, onModeChang
   return (
     <nav className="hidden md:flex flex-col w-20 lg:w-72 bg-[var(--surface)] h-screen sticky top-0 z-40 border-r border-[var(--border)] transition-colors duration-300 font-['Syne'] shadow-lg">
       <div className="pt-10 pb-8 px-6 flex items-center justify-center lg:justify-start gap-4">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center shadow-lg shadow-[var(--accent)]/30 group hover:scale-110 transition-transform duration-300">
-          <Activity className="text-white w-6 h-6 animate-pulse" />
+        <div className="w-11 h-11 flex items-center justify-center group hover:scale-110 transition-transform duration-300">
+          <img src="/logo.png" alt="PostChat Logo" className="w-full h-full object-contain drop-shadow-lg" />
         </div>
         <div className="hidden lg:flex flex-col">
           <span className="text-2xl font-bold text-[var(--text)] tracking-tight leading-none">

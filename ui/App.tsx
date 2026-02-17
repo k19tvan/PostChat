@@ -94,8 +94,8 @@ const App: React.FC = () => {
         {/* Mobile Header */}
         <div className="md:hidden flex-none z-50 bg-[var(--surface)] border-b border-[var(--border)] p-4 flex justify-between items-center shrink-0 transition-colors duration-300">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center shadow-lg shadow-[var(--accent)]/20">
-              <span className="text-white font-bold text-sm">P</span>
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img src="/logo.png" alt="PostChat Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-[var(--text)] tracking-tight">PostChat</span>
           </div>
