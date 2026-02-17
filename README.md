@@ -1,136 +1,139 @@
+# 📄 PostChat: AI-Powered Social Media Intelligence
+
+PostChat (formerly Nebula Connect) is a powerful tool designed to scrape, analyze, and interact with Facebook posts using advanced AI. It combines browser automation, Large Language Models (LLMs), and vector databases to provide a sophisticated dashboard for monitoring social media content.
+
 <div align="center">
-
-# 🌌 PostChat
-### AI-Powered Social Media Extraction & Analysis
-
-[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Gemini](https://img.shields.io/badge/Google_Gemini-8E75C2?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
-
+  <img src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" alt="PostChat Banner" width="100%">
 </div>
 
 ---
 
-## 📖 Overview
+## 🚀 Key Features
 
-**Nebula Connect** is a sophisticated platform designed to bridge the gap between raw social media data and actionable insights. By leveraging the power of **Google Gemini AI**, **LangChain**, and **Supabase**, it transforms chaotic Facebook post data into structured, searchable, and meaningful information.
+-   **One-Click Post Extraction**: Seamlessly scrape Facebook posts using the integrated Chrome Extension.
+-   **AI-Powered Analysis**: Automatically generate summaries, detect sentiment, extract topics, and perform OCR on images using **Google Gemini**.
+-   **Hybrid Search**: Find posts using standard keyword search or **Semantic Search** (Vector search) powered by embeddings.
+-   **Intelligent RAG Chat**: Chat with your saved posts using Retrieval-Augmented Generation to get deep insights across your entire feed.
+-   **Elegant Dashboard**: A modern, responsive UI with dark/light mode support for managing and analyzing extracted data.
 
-Whether you're tracking brand sentiment, analyzing market trends, or archiving important social discussions, Nebula Connect provides the tools to do it with precision.
-
-## ✨ Key Features
-
--   **🤖 AI-Powered Extraction**: Automatically processes raw Facebook data to generate:
-    -   Concise 1-2 sentence summaries.
-    -   Sentiment analysis (Positive, Neutral, Negative, Mixed).
-    -   Automated categorization (News, Tech, Personal, Meme, etc.).
-    -   Key topic and tag identification.
--   **🔍 Advanced Hybrid Search**: 
-    -   **Semantic Search**: Find posts based on meaning and context using vector embeddings (`pgvector`).
-    -   **Keyword Search**: Traditional lightning-fast full-text search.
--   **📊 Engagement Analytics**: Tracks likes, comments, shares, and detailed reaction breakdowns.
--   **📑 Media & Link Extraction**: Reliably extracts high-res images, video URLs, and external links, including OCR text from images.
--   **🔌 Browser Extension**: Integrated Facebook Apify extension for seamless data ingestion.
--   **💬 Interactive Feed**: A modern, responsive React-based dashboard for viewing and interacting with your saved data.
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
--   **Framework**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
--   **Language**: [TypeScript](https://www.typescriptlang.org/)
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
--   **Icons**: [Lucide React](https://lucide.dev/)
--   **Markdown**: [React Markdown](https://github.com/remarkjs/react-markdown)
+-   **React 19** with **TypeScript**
+-   **Vite** for lightning-fast development
+-   **Tailwind CSS** for styling
+-   **Lucide React** for icons
+-   **Supabase Auth** for user management
 
 ### Backend
--   **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python)
--   **AI Orchestration**: [LangChain](https://www.langchain.com/)
--   **LLM**: [Google Gemini 2.5 Flash / Pro](https://deepmind.google/technologies/gemini/)
--   **Scraping**: [Apify Client](https://apify.com/apify/facebook-posts-scraper)
+-   **FastAPI** (Python)
+-   **LangChain** for AI orchestration
+-   **Google Gemini 1.5 Flash** for extraction and chat
+-   **Apify** for high-reliability Facebook scraping
+-   **Supabase** (PostgreSQL + pgvector) for storage and vector search
 
-### Database & Infrastructure
--   **Primary Database**: [Supabase](https://supabase.com/) (PostgreSQL)
--   **Vector Search**: [pgvector](https://github.com/pgvector/pgvector) for embedding storage and similarity search.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
--   [Node.js](https://nodejs.org/) (v18+)
--   [Python 3.10+](https://www.python.org/)
--   [Supabase Account](https://supabase.com/)
--   [Google AI Studio API Key](https://aistudio.google.com/)
--   [Apify API Key](https://apify.com/)
-
-### 1. Database Setup
-
-1.  Create a new project in **Supabase**.
-2.  Run the contents of [`Supabase_Schema.sql`](./Supabase_Schema.sql) in the SQL Editor to set up the necessary tables and vector extensions.
-
-### 2. Backend Installation
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\\Scripts\\activate
-pip install -r requirements.txt
-```
-
-Create a `.env` file in the root directory (one level above `backend/`):
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-GOOGLE_API_KEY=your_gemini_api_key
-APIFY_API_KEY=your_apify_api_key
-```
-
-Run the backend:
-```bash
-python main.py
-```
-
-### 3. Frontend Installation
-
-```bash
-cd ui
-npm install
-```
-
-Create a `ui/.env` (or update existing):
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-Run the frontend:
-```bash
-npm run dev
-```
+### Browser Extension
+-   **Chrome Extension API**
+-   Integrated with the backend for direct post processing
 
 ---
 
 ## 📁 Project Structure
 
 ```text
-PostExtraction/
-├── backend/                # FastAPI Application logic
-│   ├── main.py             # Core API and AI extraction logic
+PostChat/
+├── backend/                # FastAPI Python server
+│   ├── main.py             # Core logic and API endpoints
 │   └── requirements.txt    # Python dependencies
-├── ui/                     # React + Vite Frontend
-│   ├── src/                # Frontend source code
-│   └── package.json        # Node.js dependencies
-├── facebook-apify-extension/# Browser extension for scraping
+├── ui/                     # React frontend
+│   ├── components/         # UI components
+│   ├── services/           # API and Supabase services
+│   └── package.json        # Frontend dependencies
+├── facebook-apify-extension/# Chrome extension for scraping
+├── crawl/                  # Independent crawler scripts
 ├── Supabase_Schema.sql     # Database initialization script
-└── .env                    # Shared environment variables
+├── .env                    # Root environment variables
+└── syncExtension.py        # Utility to sync env to extension
 ```
 
 ---
 
-## 🛡️ License
+## ⚙️ Installation & Setup
 
-Distributed under the MIT License. See `LICENSE` for more information.
+### 1. Supabase Setup
+1.  Create a new project on [Supabase](https://supabase.com/).
+2.  Run the contents of `Supabase_Schema.sql` in the **SQL Editor** of your Supabase dashboard to set up the `posts` and `documents` tables and the `match_documents` function.
+3.  Ensure the `vector` extension is enabled (handled by the script).
+
+### 2. Backend Setup
+1.  Navigate to the `backend` directory:
+    ```bash
+    cd backend
+    ```
+2.  Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3.  Configure environment variables in the root `.env` (see below).
+4.  Run the server:
+    ```bash
+    python main.py
+    ```
+
+### 3. Frontend Setup
+1.  Navigate to the `ui` directory:
+    ```bash
+    cd ui
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `ui/.env`.
+4.  Run the development server:
+    ```bash
+    npm run dev
+    ```
+
+### 4. Browser Extension Setup
+1.  Open Chrome and navigate to `chrome://extensions/`.
+2.  Enable **Developer mode**.
+3.  Click **Load unpacked** and select the `facebook-apify-extension` folder.
+4.  Use `python syncExtension.py` from the root to sync your backend URL to the extension.
 
 ---
 
+## 🔑 Environment Variables
+
+Create a `.env` file in the root directory and `ui/` directory with the following:
+
+### Root `.env` (for Backend)
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_KEY=your_supabase_service_role_key
+GOOGLE_API_KEY=your_gemini_api_key
+APIFY_API_KEY=your_apify_api_key
+```
+
+### `ui/.env` (for Frontend)
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_BACKEND_URL=http://localhost:8000
+```
+
+---
+
+## 📖 Usage
+
+1.  **Extraction**: Navigate to a Facebook post, click the PostChat extension, and trigger "Extract Post".
+2.  **Analysis**: View the processed post in the "Feed Analyzer" tab of the web dashboard.
+3.  **Discovery**: Search for posts using specific keywords or conceptual queries (Semantic Search).
+4.  **Interaction**: Use "Conversation Mode" to ask the AI questions about your saved posts (e.g., "What were the main tech trends in my saved posts last week?").
+
+---
+
+## 📄 License
+This project is licensed under the MIT License - see the `LICENSE` file for details.
