@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FacebookPost } from '../types';
 import { PostCard } from './PostCard';
-import { RefreshCw, Database, Search, Sparkles, Filter, X } from 'lucide-react';
+import { RefreshCw, Database, Search, Sparkles, Filter, X, Zap, Layers } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { searchPosts, SearchResult } from '../services/backendService';
 
@@ -17,6 +17,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null);
 
+  // --- Logic Functions (Giữ nguyên) ---
   const loadPosts = async () => {
     setLoading(true);
     try {
@@ -89,22 +90,15 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
         .single();
       const postId = currentPost?.postid;
 
-      const { error: postsError } = await supabase
-        .from('posts')
-        .delete()
-        .eq('id', id);
-
+      const { error: postsError } = await supabase.from('posts').delete().eq('id', id);
       if (postsError) throw postsError;
 
       if (postId) {
-        await supabase
-          .from('documents')
-          .delete()
-          .filter('metadata->>post_id', 'eq', postId);
+        await supabase.from('documents').delete().filter('metadata->>post_id', 'eq', postId);
       }
 
       setPosts(prev => prev.filter(post => post.id !== id));
-      loadPosts();
+      loadPosts(); // Refresh to be safe
     } catch (error) {
       console.error("Failed to delete post", error);
       alert("Failed to delete post from database");
@@ -132,8 +126,8 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
           }
         } else {
           postMap.set(postId, {
-            id: `search-${index}`,
-            authorName: res.metadata.author || 'Post Data',
+            id: `search-${index}`, // Temporary ID for display
+            authorName: res.metadata.author || 'AI Result',
             authorAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${res.metadata.author || index}`,
             content: res.content,
             timestamp: res.metadata.time || new Date().toISOString(),
@@ -142,7 +136,8 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
             shares: 0,
             url: res.metadata.url || '',
             type: res.metadata.type,
-            similarity: res.similarity_score
+            similarity: res.similarity_score,
+            isAiResult: true // Flag for UI styling
           });
         }
       });
@@ -157,119 +152,379 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
 
   const displayResults = getDisplayResults();
 
+  // --- Render ---
   return (
-    <div className="rm-root">
-      <div className="rm-ambient" />
-      <div className="rm-scanlines" />
+    <div className="rm-container">
+      <style>{`
+        :root {
+          --bg-main: #0c0e12;
+          --bg-card: #16181d;
+          --border-color: #2d3039;
+          --text-primary: #ffffff;
+          --text-secondary: #9ca3af;
+          --accent-blue: #3b82f6;
+          --accent-purple: #8b5cf6;
+          --success: #10b981;
+        }
+
+        .rm-container {
+          min-height: 100vh;
+          background-color: var(--bg-main);
+          color: var(--text-primary);
+          font-family: 'Inter', system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+        }
+
+        .rm-grid-bg {
+          position: absolute;
+          inset: 0;
+          background-image: radial-gradient(#2d3039 1px, transparent 1px);
+          background-size: 24px 24px;
+          opacity: 0.15;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        /* HEADER */
+        .rm-header {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          padding: 16px 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background-color: #111318;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .rm-brand {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .rm-icon-box {
+          width: 36px;
+          height: 36px;
+          background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        .rm-brand-title {
+          font-weight: 800;
+          font-size: 18px;
+          letter-spacing: -0.02em;
+          color: white;
+        }
+        .rm-status-dot {
+          width: 8px;
+          height: 8px;
+          background: var(--success);
+          border-radius: 50%;
+          box-shadow: 0 0 8px var(--success);
+        }
+
+        /* CONTROLS */
+        .rm-controls {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .rm-toggle-group {
+          display: flex;
+          background: #000;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 2px;
+        }
+        .rm-toggle-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s;
+          color: var(--text-secondary);
+          background: transparent;
+        }
+        .rm-toggle-btn.active {
+          color: white;
+        }
+        .rm-toggle-btn.active.mode-ai {
+          background: var(--accent-purple);
+        }
+        .rm-toggle-btn.active.mode-keyword {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+        }
+
+        .rm-refresh-btn {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          color: white;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .rm-refresh-btn:hover { border-color: var(--text-secondary); }
+        .rm-refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* SEARCH AREA */
+        .rm-search-zone {
+          position: relative;
+          z-index: 10;
+          padding: 24px 32px 0;
+          max-width: 900px;
+          margin: 0 auto;
+          width: 100%;
+        }
+
+        .rm-search-input-wrapper {
+          position: relative;
+          width: 100%;
+        }
+        .rm-search-input {
+          width: 100%;
+          background: #000;
+          border: 1px solid var(--border-color);
+          padding: 14px 16px 14px 48px;
+          border-radius: 12px;
+          color: white;
+          font-size: 15px;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .rm-search-input:focus {
+          border-color: var(--accent-blue);
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+        .rm-search-input.ai-mode:focus {
+          border-color: var(--accent-purple);
+          box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+        }
+        
+        .rm-search-icon {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--text-secondary);
+        }
+
+        .rm-search-action {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .rm-btn-search {
+          background: var(--text-primary);
+          color: black;
+          border: none;
+          padding: 6px 16px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .rm-btn-search.ai {
+          background: var(--accent-purple);
+          color: white;
+        }
+
+        /* RESULTS AREA */
+        .rm-feed-area {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+          max-width: 900px;
+          margin: 0 auto;
+          width: 100%;
+          z-index: 10;
+        }
+
+        .rm-feed-area::-webkit-scrollbar { width: 6px; }
+        .rm-feed-area::-webkit-scrollbar-track { background: transparent; }
+        .rm-feed-area::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        .rm-ai-banner {
+          background: rgba(139, 92, 246, 0.1);
+          border: 1px solid rgba(139, 92, 246, 0.3);
+          border-radius: 8px;
+          padding: 12px 16px;
+          margin-bottom: 24px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 12px;
+          color: #d8b4fe;
+        }
+
+        /* Loading / Empty States */
+        .rm-state-box {
+          display: flex;
+          flex-col;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 0;
+          color: var(--text-secondary);
+          text-align: center;
+        }
+        .rm-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid #333;
+          border-top-color: var(--accent-blue);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Helpers */
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .text-xs { font-size: 12px; }
+        .uppercase { text-transform: uppercase; }
+        .tracking-wide { letter-spacing: 0.05em; }
+
+      `}</style>
+
+      {/* Ambient Grid */}
+      <div className="rm-grid-bg" />
 
       {/* Header */}
-      <div className="rm-header">
-        <div className="flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white shadow-lg shadow-[var(--accent)]/30">
-            <Database size={22} />
+      <header className="rm-header">
+        <div className="rm-brand">
+          <div className="rm-icon-box">
+            <Database size={20} />
           </div>
           <div>
-            <h2 className="text-xl font-bold tracking-tight">Social Feed</h2>
-            <div className="flex items-center gap-2 mt-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse shadow-[0_0_10px_var(--success)]" />
-              <p className="text-[10px] font-['JetBrains_Mono'] uppercase tracking-wider text-[var(--muted)]">Database Connected</p>
+            <div className="rm-brand-title">Social Feed</div>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="rm-status-dot" />
+              <span className="text-xs text-gray-500 font-mono tracking-wide uppercase">Connected</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Toggle Buttons */}
-          <div className="flex items-center p-1 bg-[var(--surface2)] rounded-xl border border-[var(--border)]">
+        <div className="rm-controls">
+          <div className="rm-toggle-group">
             <button
               onClick={() => { setAdvancedMode(false); setSearchResults(null); }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${!advancedMode ? 'bg-[var(--surface)] text-[var(--text)] shadow-sm' : 'text-[var(--muted)] hover:text-[var(--text)]'}`}
+              className={`rm-toggle-btn ${!advancedMode ? 'active mode-keyword' : ''}`}
             >
               <Filter size={14} />
-              <span className="hidden sm:inline">Keyword</span>
+              <span>Keyword</span>
             </button>
-            <div className="w-px h-4 bg-[var(--border)] mx-1" />
             <button
               onClick={() => setAdvancedMode(true)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${advancedMode ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30' : 'text-[var(--muted)] hover:text-[var(--text)]'}`}
+              className={`rm-toggle-btn ${advancedMode ? 'active mode-ai' : ''}`}
             >
               <Sparkles size={14} />
-              <span className="hidden sm:inline">AI Analysis</span>
+              <span>AI Analysis</span>
             </button>
           </div>
 
-          <button
-            onClick={loadPosts}
-            disabled={loading}
-            className="rm-btn-secondary"
-          >
+          <button onClick={loadPosts} disabled={loading} className="rm-refresh-btn" title="Refresh Feed">
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Search Bar Area */}
-      <div className="px-8 py-6 z-10">
-        <form onSubmit={handleSearch} className="relative group max-w-4xl mx-auto">
-          <div className="relative flex items-center">
-            <input
-              type="text"
-              placeholder={advancedMode ? "Ask AI about your posts..." : "Search keywords..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="rm-input pl-12 pr-4 transition-all focus:border-[var(--accent)]"
-            />
-            {/* <Search className="left-4 w-5 h-5 text-[var(--muted)] group-focus-within:text-[var(--accent)] transition-colors" /> */}
-
-            {searchQuery && (
-              <div className="absolute right-3 flex items-center gap-2">
-                <button type="button" onClick={clearSearch} className="p-1 hover:text-white text-[var(--muted)]"><X size={16} /></button>
-                <button type="submit" className="px-4 py-1.5 bg-[var(--accent)] text-white text-xs font-bold rounded-lg hover:opacity-90">
-                  {isSearching ? <RefreshCw size={12} className="animate-spin" /> : 'Search'}
-                </button>
-              </div>
-            )}
+      {/* Search Section */}
+      <div className="rm-search-zone">
+        <form onSubmit={handleSearch} className="rm-search-input-wrapper">
+          <div className="rm-search-icon">
+            {advancedMode ? <Sparkles size={18} className="text-purple-400" /> : <Search size={18} />}
           </div>
-        </form>
 
-        {/* Search results banner */}
-        {advancedMode && searchResults && (
-          <div className="max-w-4xl mx-auto mt-5 px-5 py-3 bg-[var(--surface2)] border border-[var(--border)] rounded-xl flex justify-between items-center">
-            <div className="flex items-center gap-2 text-xs">
-              <Sparkles size={12} className="text-[var(--accent)]" />
-              <span className="text-[var(--accent2)] font-mono">AI FOUND {searchResults.length} RESULTS</span>
-            </div>
-            <button onClick={clearSearch} className="text-[10px] text-[var(--muted)] hover:text-white uppercase tracking-wider font-mono underline">Clear</button>
-          </div>
-        )}
-      </div>
+          <input
+            type="text"
+            className={`rm-search-input ${advancedMode ? 'ai-mode' : ''}`}
+            placeholder={advancedMode ? "Ask AI about your data (e.g., 'Positive feedback about pricing')..." : "Filter by keywords..."}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
 
-      {/* Feed Content */}
-      <div className="flex-1 overflow-y-auto relative z-0 custom-scrollbar px-6 pb-20">
-        <div className="max-w-4xl mx-auto mt-8">
-          {loading || isSearching ? (
-            <div className="flex flex-col items-center justify-center py-32 space-y-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-[var(--accent)] opacity-20 blur-xl rounded-full" />
-                <RefreshCw className="relative w-12 h-12 text-[var(--accent)] animate-spin" />
-              </div>
-              <p className="text-[var(--muted)] font-mono text-xs uppercase tracking-widest animate-pulse">
-                {isSearching ? "Querying Vector DB..." : "Syncing Feed..."}
-              </p>
-            </div>
-          ) : displayResults.length > 0 ? (
-            <div className="space-y-8">
-              {displayResults.map(post => (
-                <PostCard key={post.id} post={post as FacebookPost} onDelete={handleDelete} />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-32 opacity-50">
-              <Database size={48} className="text-[var(--muted)] mb-4" />
-              <p className="text-[var(--muted)] font-mono text-sm">NO DATA FOUND</p>
+          {searchQuery && (
+            <div className="rm-search-action">
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="p-1.5 rounded-md hover:bg-[#333] text-gray-400"
+              >
+                <X size={14} />
+              </button>
+              <button
+                type="submit"
+                className={`rm-btn-search ${advancedMode ? 'ai' : ''}`}
+                disabled={isSearching}
+              >
+                {isSearching ? '...' : 'Search'}
+              </button>
             </div>
           )}
-        </div>
+        </form>
+      </div>
+
+      {/* Main Feed */}
+      <div className="rm-feed-area">
+        {advancedMode && searchResults && (
+          <div className="rm-ai-banner">
+            <div className="flex items-center gap-2">
+              <Zap size={14} />
+              <span className="font-mono font-bold">AI FOUND {searchResults.length} RELEVANT POSTS</span>
+            </div>
+            <button onClick={clearSearch} className="underline opacity-70 hover:opacity-100">Clear</button>
+          </div>
+        )}
+
+        {loading || isSearching ? (
+          <div className="rm-state-box">
+            <div className={`rm-spinner`} style={{ borderTopColor: advancedMode ? '#8b5cf6' : '#3b82f6' }} />
+            <div className="font-mono text-xs uppercase tracking-wide">
+              {isSearching ? (advancedMode ? "Vector Search Running..." : "Filtering...") : "Syncing Database..."}
+            </div>
+          </div>
+        ) : displayResults.length > 0 ? (
+          <div className="space-y-6">
+            {displayResults.map(post => (
+              // Note: PostCard should ideally handle its own dark mode styling
+              // based on the context, or you can wrap it in a styled div here.
+              <div key={post.id} className="relative">
+                {/* Visual connector for list items if needed */}
+                <PostCard post={post as FacebookPost} onDelete={handleDelete} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rm-state-box">
+            <Layers size={48} className="mb-4 opacity-20" />
+            <div className="text-lg font-bold text-gray-500">No Data Found</div>
+            <p className="text-sm mt-2 opacity-50">Try adjusting your search query</p>
+          </div>
+        )}
       </div>
     </div>
   );

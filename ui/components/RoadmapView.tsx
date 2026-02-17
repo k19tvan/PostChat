@@ -1,21 +1,27 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { ChevronDown, History } from 'lucide-react';
+import {
+  ChevronDown,
+  History,
+  Search,
+  Sparkles,
+  CheckCircle2,
+  Circle,
+  ArrowRight,
+  BookOpen,
+  Code2,
+  Cpu,
+  Layers
+} from 'lucide-react';
 
+// --- Types ---
 interface RoadmapNode {
   id: string;
   title: string;
   description: string;
   skills: string[];
   projects: string[];
-  posts: Array<{
-    id: string;
-    url: string;
-    author: string;
-    summary: string;
-    topics: string[];
-    reason: string;
-  }>;
+  posts: Array<any>;
   courses: Array<{
     id: string;
     title: string;
@@ -41,15 +47,15 @@ interface RoadmapViewProps {
   theme?: 'dark' | 'light';
 }
 
-const NODE_GLYPHS = ['◈', '◎', '⬡', '◇', '⊕', '★'];
-
+// --- Constants: Vibrant Palettes ---
+// Màu sắc đậm đà hơn, độ tương phản cao hơn
 const NODE_PALETTES = [
-  { bg: '#0ea5e9', glow: 'rgba(14,165,233,0.4)', label: 'sky', bar: '#38bdf8' },
-  { bg: '#a855f7', glow: 'rgba(168,85,247,0.4)', label: 'violet', bar: '#c084fc' },
-  { bg: '#22c55e', glow: 'rgba(34,197,94,0.4)', label: 'emerald', bar: '#4ade80' },
-  { bg: '#f59e0b', glow: 'rgba(245,158,11,0.4)', label: 'amber', bar: '#fbbf24' },
-  { bg: '#ef4444', glow: 'rgba(239,68,68,0.4)', label: 'rose', bar: '#f87171' },
-  { bg: '#06b6d4', glow: 'rgba(6,182,212,0.4)', label: 'cyan', bar: '#22d3ee' },
+  { name: 'Cyan', main: '#06b6d4', bg: 'rgba(6, 182, 212, 0.15)', text: '#67e8f9' },
+  { name: 'Violet', main: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)', text: '#c4b5fd' },
+  { name: 'Emerald', main: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', text: '#6ee7b7' },
+  { name: 'Amber', main: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', text: '#fcd34d' },
+  { name: 'Rose', main: '#f43f5e', bg: 'rgba(244, 63, 94, 0.15)', text: '#fda4af' },
+  { name: 'Blue', main: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)', text: '#93c5fd' },
 ];
 
 const MOCK_ROADMAP: RoadmapData = {
@@ -59,64 +65,59 @@ const MOCK_ROADMAP: RoadmapData = {
     {
       id: 'n1',
       title: 'Python Fundamentals',
-      description: 'Master the core language: syntax, data structures, OOP, and the standard library. This is the bedrock everything else stands on.',
-      skills: ['Variables & Types', 'Functions', 'Classes & OOP', 'List Comprehensions', 'Error Handling', 'File I/O'],
+      description: 'Master the core language: syntax, data structures, OOP, and the standard library.',
+      skills: ['Variables & Types', 'Functions', 'Classes & OOP', 'List Comprehensions', 'Error Handling'],
       projects: ['CLI Todo App', 'File Organizer Script', 'Text Adventure Game'],
       posts: [],
       courses: [
-        { id: 'c1', title: 'Python for Everybody – Coursera', url: 'https://coursera.org', reason: 'Best structured intro' },
+        { id: 'c1', title: 'Python for Everybody', url: 'https://coursera.org', reason: 'Best structured intro' },
         { id: 'c2', title: 'Automate the Boring Stuff', url: 'https://automatetheboringstuff.com', reason: 'Practical projects' },
       ],
     },
     {
       id: 'n2',
       title: 'Web Frameworks',
-      description: 'Learn FastAPI for modern async APIs and Django for full-stack power. Build RESTful services that scale.',
-      skills: ['FastAPI', 'Django', 'REST principles', 'Pydantic', 'Django ORM', 'Middleware'],
+      description: 'Learn FastAPI for modern async APIs and Django for full-stack power.',
+      skills: ['FastAPI', 'Django', 'REST principles', 'Pydantic', 'Django ORM'],
       projects: ['REST API for a blog', 'Auth service with JWT', 'Django admin portal'],
       posts: [],
       courses: [
         { id: 'c3', title: 'FastAPI – Full Course', url: 'https://fastapi.tiangolo.com', reason: 'Official + modern' },
-        { id: 'c4', title: 'Django for Beginners', url: 'https://djangoforbeginners.com', reason: 'Project-based' },
       ],
     },
     {
       id: 'n3',
       title: 'Databases & SQL',
-      description: 'PostgreSQL mastery, indexing strategies, query optimisation, and the SQLAlchemy ORM for seamless Python integration.',
-      skills: ['PostgreSQL', 'SQLAlchemy', 'Migrations', 'Indexing', 'Transactions', 'Redis'],
-      projects: ['E-commerce DB schema', 'Caching layer with Redis', 'Full-text search service'],
+      description: 'PostgreSQL mastery, indexing strategies, and the SQLAlchemy ORM.',
+      skills: ['PostgreSQL', 'SQLAlchemy', 'Migrations', 'Indexing', 'Redis'],
+      projects: ['E-commerce DB schema', 'Caching layer', 'Full-text search service'],
       posts: [],
       courses: [
-        { id: 'c5', title: 'PostgreSQL Tutorial', url: 'https://postgresqltutorial.com', reason: 'Comprehensive reference' },
+        { id: 'c5', title: 'PostgreSQL Tutorial', url: 'https://postgresqltutorial.com', reason: 'Reference' },
       ],
     },
     {
       id: 'n4',
       title: 'DevOps & Deployment',
-      description: 'Containerise with Docker, orchestrate with Kubernetes, set up CI/CD pipelines, and monitor in production.',
-      skills: ['Docker', 'Kubernetes', 'GitHub Actions', 'Nginx', 'Prometheus', 'Grafana'],
-      projects: ['Dockerise a FastAPI app', 'CI/CD pipeline on GitHub', 'K8s cluster deployment'],
+      description: 'Containerise with Docker, orchestrate with Kubernetes, set up CI/CD pipelines.',
+      skills: ['Docker', 'Kubernetes', 'GitHub Actions', 'Nginx', 'Prometheus'],
+      projects: ['Dockerise a FastAPI app', 'CI/CD pipeline', 'K8s cluster deployment'],
       posts: [],
-      courses: [
-        { id: 'c6', title: 'Docker & Kubernetes – Udemy', url: 'https://udemy.com', reason: 'Hands-on labs' },
-      ],
+      courses: [],
     },
     {
       id: 'n5',
       title: 'System Design',
-      description: 'Think at scale: distributed systems, message queues, microservices, CAP theorem, and designing for resilience.',
-      skills: ['Microservices', 'RabbitMQ / Kafka', 'Load Balancing', 'CAP Theorem', 'Rate Limiting', 'gRPC'],
-      projects: ['Event-driven order system', 'API Gateway pattern', 'Rate limiter from scratch'],
+      description: 'Think at scale: distributed systems, message queues, microservices.',
+      skills: ['Microservices', 'RabbitMQ', 'Load Balancing', 'CAP Theorem'],
+      projects: ['Event-driven order system', 'API Gateway pattern'],
       posts: [],
-      courses: [
-        { id: 'c7', title: 'Designing Data-Intensive Applications', url: 'https://dataintensive.net', reason: 'The bible of system design' },
-      ],
+      courses: [],
     },
   ],
 };
 
-export const RoadmapView: React.FC<RoadmapViewProps> = ({ theme = 'dark' }) => {
+export const RoadmapView: React.FC<RoadmapViewProps> = () => {
   const [roadmap, setRoadmap] = useState<RoadmapData | null>(MOCK_ROADMAP);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -124,43 +125,20 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ theme = 'dark' }) => {
   const [showPathsDropdown, setShowPathsDropdown] = useState(false);
   const [userGoal, setUserGoal] = useState('');
   const [completedNodes, setCompletedNodes] = useState<Set<string>>(new Set());
-  const [activeNode, setActiveNode] = useState<string | null>(null);
-  const [inputFocused, setInputFocused] = useState(false);
+  const [activeNodeId, setActiveNodeId] = useState<string | null>('n1');
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const checkScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
-  }, []);
+  // --- Effects ---
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.addEventListener('scroll', checkScroll, { passive: true });
-    checkScroll();
-    return () => el.removeEventListener('scroll', checkScroll);
-  }, [roadmap, checkScroll]);
-
-  const fetchSavedPaths = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('learning_paths')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      if (data) setSavedPaths(data);
-    } catch (err) {
-      console.error('Error fetching paths:', err);
-    }
-  };
-
-  useEffect(() => {
+    const fetchSavedPaths = async () => {
+      try {
+        const { data } = await supabase.from('learning_paths').select('*').order('created_at', { ascending: false });
+        if (data) setSavedPaths(data);
+      } catch (err) { console.error(err); }
+    };
     fetchSavedPaths();
   }, []);
 
@@ -174,1194 +152,648 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ theme = 'dark' }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const scroll = (dir: 'left' | 'right') => {
-    scrollRef.current?.scrollBy({ left: dir === 'right' ? 440 : -440, behavior: 'smooth' });
+  // --- Actions ---
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    const scrollAmount = 420;
+    scrollRef.current.scrollBy({
+      left: direction === 'right' ? scrollAmount : -scrollAmount,
+      behavior: 'smooth'
+    });
   };
 
   const generateRoadmap = async () => {
     if (!userGoal.trim()) return;
     setLoading(true);
-    setError(null);
     setRoadmap(null);
-    setCompletedNodes(new Set());
+    setActiveNodeId(null);
     try {
-      const res = await fetch('http://localhost:8000/roadmap', {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/roadmap`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ goal: userGoal }),
       });
-      if (!res.ok) throw new Error('Failed to generate roadmap');
+      if (!res.ok) throw new Error('Failed to generate');
       const data = await res.json();
       const newRoadmap = data.data || data;
       setRoadmap(newRoadmap);
-      // Refresh saved paths to include the new one
-      fetchSavedPaths();
+      if (newRoadmap.nodes.length > 0) setActiveNodeId(newRoadmap.nodes[0].id);
     } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const selectPath = (path: SavedPath) => {
-    setRoadmap(path.roadmap_data);
-    setUserGoal(path.goal);
-    setCompletedNodes(new Set());
-    setActiveNode(null);
-    setShowPathsDropdown(false);
-  };
-
-  const toggleComplete = (id: string) => {
+  const toggleComplete = (id: string, index: number) => {
     setCompletedNodes(prev => {
       const s = new Set(prev);
-      s.has(id) ? s.delete(id) : s.add(id);
+      if (s.has(id)) {
+        s.delete(id);
+      } else {
+        s.add(id);
+        if (roadmap && index < roadmap.nodes.length - 1) {
+          const nextId = roadmap.nodes[index + 1].id;
+          setActiveNodeId(nextId);
+          setTimeout(() => {
+            const el = document.getElementById(`node-${nextId}`);
+            el?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }, 100);
+        }
+      }
       return s;
     });
   };
 
-  const progress = roadmap ? Math.round((completedNodes.size / roadmap.nodes.length) * 100) : 0;
+  const calculateProgress = () => {
+    if (!roadmap) return 0;
+    return Math.round((completedNodes.size / roadmap.nodes.length) * 100);
+  };
 
   return (
-    <>
+    <div className="rm-container">
       <style>{`
-        .rm-root {
-          font-family: 'Syne', sans-serif;
-          background: var(--bg);
-          color: var(--text);
+        :root {
+          --bg-main: #0c0e12;      /* Nền chính rất tối */
+          --bg-card: #16181d;      /* Nền card sáng hơn xíu */
+          --border-color: #2d3039; /* Màu viền rõ ràng */
+          --text-primary: #ffffff;
+          --text-secondary: #9ca3af;
+          --accent-global: #3b82f6;
+          --success: #10b981;
+        }
+
+        .rm-container {
           min-height: 100vh;
+          background-color: var(--bg-main);
+          color: var(--text-primary);
+          font-family: 'Inter', system-ui, sans-serif;
           display: flex;
           flex-direction: column;
           overflow: hidden;
           position: relative;
         }
 
-        .rm-ambient {
-          position: fixed;
+        /* Pattern Background nền lưới nhẹ */
+        .rm-grid-bg {
+          position: absolute;
           inset: 0;
+          background-image: radial-gradient(#2d3039 1px, transparent 1px);
+          background-size: 24px 24px;
+          opacity: 0.15;
           pointer-events: none;
-          z-index: 0;
-        }
-        .rm-ambient::before {
-          content: '';
-          position: absolute;
-          top: -30%;
-          left: -20%;
-          width: 60%;
-          height: 80%;
-          background: radial-gradient(ellipse, rgba(124,109,250,0.07) 0%, transparent 70%);
-          filter: blur(60px);
-        }
-        .rm-ambient::after {
-          content: '';
-          position: absolute;
-          bottom: -20%;
-          right: -10%;
-          width: 50%;
-          height: 60%;
-          background: radial-gradient(ellipse, rgba(6,182,212,0.05) 0%, transparent 70%);
-          filter: blur(80px);
         }
 
-        .rm-scanlines {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 1;
-          background-image: repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            rgba(0,0,0,0.03) 2px,
-            rgba(0,0,0,0.03) 4px
-          );
-        }
-
+        /* --- Header --- */
         .rm-header {
           position: relative;
-          z-index: 10;
+          z-index: 20;
+          padding: 16px 32px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 24px;
-          padding: 20px 32px;
-          border-bottom: 1px solid var(--border);
-          background: rgba(5,5,8,0.85);
-          backdrop-filter: blur(20px);
+          background-color: #111318;
+          border-bottom: 1px solid var(--border-color);
         }
 
-        .rm-logo {
+        .rm-brand {
           display: flex;
           align-items: center;
           gap: 12px;
-          flex-shrink: 0;
         }
-
-        .rm-logo-mark {
-          width: 44px;
-          height: 44px;
-          flex-shrink: 0;
-        }
-        .rm-logo-mark img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-        }
-
-        .rm-logo-text {
+        .rm-logo-box {
+          width: 36px;
+          height: 36px;
+          background: var(--text-primary);
+          border-radius: 8px;
           display: flex;
-          flex-direction: column;
-          line-height: 1;
+          align-items: center;
+          justify-content: center;
+          color: black;
         }
-
-        .rm-logo-title {
-          font-size: 17px;
+        .rm-brand-text {
           font-weight: 800;
-          letter-spacing: -0.02em;
-          color: var(--text);
+          font-size: 18px;
+          letter-spacing: -0.03em;
         }
 
-        .rm-logo-sub {
-          font-size: 11px;
-          font-family: 'JetBrains Mono', monospace;
-          color: var(--muted);
-          margin-top: 3px;
-          letter-spacing: 0.08em;
-        }
-
-        .rm-saved-trigger {
+        /* Search Input - High Contrast */
+        .rm-search-bar {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 0 16px;
-          height: 44px;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          color: var(--text);
-          font-family: 'Syne', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-          white-space: nowrap;
-          position: relative;
+          background: #000;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 4px;
+          width: 480px;
+          transition: border-color 0.2s;
         }
-
-        .rm-saved-trigger:hover {
-          background: var(--surface2);
-          border-color: var(--border-hover);
+        .rm-search-bar:focus-within {
+          border-color: var(--accent-global);
         }
-
-        .rm-saved-trigger.active {
-          border-color: var(--accent);
-          background: var(--accent)/10;
-        }
-
-        .rm-paths-dropdown {
-          position: absolute;
-          top: calc(100% + 12px);
-          right: 0;
-          width: 320px;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: 16px;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
-          z-index: 100;
-          overflow: hidden;
-          animation: dropdownIn 0.2s cubic-bezier(0,0,0.2,1);
-        }
-
-        @keyframes dropdownIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .rm-dropdown-header {
-          padding: 16px;
-          border-bottom: 1px solid var(--border);
-          background: rgba(255,255,255,0.02);
-        }
-
-        .rm-dropdown-title {
-          font-size: 12px;
-          font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: var(--muted);
-        }
-
-        .rm-path-list {
-          max-height: 400px;
-          overflow-y: auto;
-        }
-
-        .rm-path-item {
-          width: 100%;
-          padding: 14px 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          text-align: left;
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid var(--border);
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-
-        .rm-path-item:hover {
-          background: var(--surface2);
-        }
-
-        .rm-path-item:last-child {
-          border-bottom: none;
-        }
-
-        .rm-path-goal {
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--text);
-          line-height: 1.3;
-        }
-
-        .rm-path-meta {
-          font-size: 10px;
-          font-family: 'JetBrains Mono', monospace;
-          color: var(--muted);
-        }
-
-        .rm-search-wrap {
-          flex: 1;
-          max-width: 600px;
-          position: relative;
-        }
-
-        .rm-search-inner {
-          display: flex;
-          align-items: center;
-          gap: 0;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          overflow: hidden;
-          transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .rm-search-inner.focused {
-          border-color: rgba(124,109,250,0.5);
-          box-shadow: 0 0 0 3px rgba(124,109,250,0.1), 0 0 30px rgba(124,109,250,0.08);
-        }
-
-        .rm-search-icon {
-          padding: 0 14px;
-          color: var(--muted);
-          font-size: 14px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.05em;
-          flex-shrink: 0;
-          border-right: 1px solid var(--border);
-          height: 44px;
-          display: flex;
-          align-items: center;
-        }
-
-        .rm-search-input {
+        .rm-input {
           flex: 1;
           background: transparent;
-          border: none;
-          outline: none;
-          color: var(--text);
-          font-family: 'Syne', sans-serif;
-          font-size: 14px;
-          padding: 0 16px;
-          height: 44px;
-        }
-
-        .rm-search-input::placeholder {
-          color: var(--muted);
-        }
-
-        .rm-search-btn {
-          height: 44px;
-          padding: 0 20px;
-          background: linear-gradient(135deg, #7c6dfa, #a78bfa);
           border: none;
           color: white;
-          font-family: 'Syne', sans-serif;
-          font-weight: 700;
+          padding: 10px 12px;
+          font-size: 14px;
+          outline: none;
+        }
+        .rm-btn-action {
+          background: var(--accent-global);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-weight: 600;
           font-size: 13px;
-          letter-spacing: 0.04em;
           cursor: pointer;
-          transition: opacity 0.15s, transform 0.15s;
+        }
+        .rm-btn-action:hover { opacity: 0.9; }
+        .rm-btn-action:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        /* --- Progress Bar --- */
+        .rm-progress-strip {
+          background: #111318;
+          padding: 16px 32px;
+          border-bottom: 1px solid var(--border-color);
           display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 8px;
-          white-space: nowrap;
-          flex-shrink: 0;
         }
-
-        .rm-search-btn:hover:not(:disabled) { opacity: 0.88; }
-        .rm-search-btn:active:not(:disabled) { transform: scale(0.98); }
-        .rm-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .rm-stats {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex-shrink: 0;
-        }
-
-        .rm-stat {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 6px;
-        }
-
-        .rm-stat-label {
-          font-size: 10px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.1em;
-          color: var(--muted);
-          text-transform: uppercase;
-        }
-
-        .rm-stat-value {
-          font-size: 13px;
+        .rm-goal-title {
+          font-size: 20px;
           font-weight: 700;
-          color: var(--text);
+          color: white;
         }
-
-        .rm-progress-bar-wrap {
-          width: 120px;
-          height: 4px;
-          background: var(--surface2);
-          border-radius: 4px;
+        .rm-progress-track {
+          width: 200px;
+          height: 8px;
+          background: #27272a;
+          border-radius: 100px;
           overflow: hidden;
         }
-
-        .rm-progress-bar-fill {
+        .rm-progress-fill {
           height: 100%;
-          background: linear-gradient(90deg, var(--accent), var(--accent2));
-          border-radius: 4px;
-          transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
-          box-shadow: 0 0 8px rgba(124,109,250,0.6);
+          background: var(--success);
+          transition: width 0.4s ease;
         }
 
-        .rm-goal-strip {
-          position: relative;
-          z-index: 5;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 32px;
-          background: var(--surface);
-          border-bottom: 1px solid var(--border);
-        }
-
-        .rm-goal-label {
-          font-size: 10px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.12em;
-          color: var(--accent2);
-          text-transform: uppercase;
-        }
-
-        .rm-goal-divider {
-          width: 1px;
-          height: 14px;
-          background: var(--border);
-        }
-
-        .rm-goal-text {
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--text);
-          letter-spacing: -0.01em;
-        }
-
-        .rm-badge {
-          margin-left: auto;
-          font-size: 10px;
-          font-family: 'JetBrains Mono', monospace;
-          padding: 3px 10px;
-          border-radius: 100px;
-          background: rgba(124,109,250,0.12);
-          color: var(--accent2);
-          border: 1px solid rgba(124,109,250,0.25);
-          letter-spacing: 0.06em;
-        }
-
-        .rm-timeline-area {
+        /* --- Timeline Scroll Area --- */
+        .rm-timeline-zone {
           flex: 1;
           position: relative;
-          z-index: 5;
-          overflow: hidden;
           display: flex;
-          align-items: center;
+          flex-direction: column;
+          justify-content: center;
+          padding-top: 20px;
         }
-
+        
         .rm-scroll-track {
           display: flex;
-          align-items: flex-start;
           gap: 0;
           overflow-x: auto;
           overflow-y: hidden;
-          scrollbar-width: none;
-          padding: 48px 80px 56px 24px;
-          height: 100%;
-          box-sizing: border-box;
+          padding: 40px 40px 60px;
           scroll-snap-type: x mandatory;
+          scrollbar-width: none;
+          align-items: flex-start;
+          height: 100%;
         }
-
-        .rm-scroll-track::-webkit-scrollbar { display: none; }
-
-        .rm-connector-line {
+        
+        /* Connector Line - Solid */
+        .rm-connector-bg {
           position: absolute;
-          top: 107px;
-          left: 24px;
-          right: 80px;
-          height: 1px;
-          z-index: 0;
-          overflow: hidden;
-        }
-
-        .rm-connector-line::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: repeating-linear-gradient(
-            90deg,
-            rgba(255,255,255,0.08) 0px,
-            rgba(255,255,255,0.08) 8px,
-            transparent 8px,
-            transparent 20px
-          );
-        }
-
-        .rm-stage {
-          flex-shrink: 0;
-          width: 440px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          scroll-snap-align: start;
-          position: relative;
-          padding: 0 20px;
-          animation: stageIn 0.5s cubic-bezier(0.4,0,0.2,1) both;
-        }
-
-        @keyframes stageIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .rm-stage:not(:last-child)::after {
-          content: '';
-          position: absolute;
-          top: 30px;
-          left: calc(50% + 31px);
-          width: calc(100% - 20px);
-          height: 1px;
-          background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
-          z-index: 0;
-        }
-
-        .rm-orb-wrap {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .rm-orb {
-          width: 60px;
-          height: 60px;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-          cursor: pointer;
-          transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
-          position: relative;
-          z-index: 2;
-          border: 1.5px solid rgba(255,255,255,0.12);
-        }
-
-        .rm-orb:hover { transform: scale(1.12) translateY(-3px); }
-
-        .rm-orb.completed { border-color: rgba(52,211,153,0.5); }
-
-        .rm-orb.completed::after {
-          content: '✓';
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 20px;
-          background: rgba(52,211,153,0.18);
-          backdrop-filter: blur(4px);
-          border-radius: 14px;
-          color: var(--success);
-          font-family: 'Syne', sans-serif;
-          font-weight: 800;
-        }
-
-        .rm-orb-num {
-          margin-top: 10px;
-          font-size: 10px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.12em;
-          color: var(--muted);
-          text-transform: uppercase;
-        }
-
-        /* ── Card ── */
-        .rm-card {
-          width: 100%;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: 20px;
-          overflow: hidden;
-          transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
-          display: flex;
-          flex-direction: column;
-          max-height: 560px;
-          position: relative;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .rm-card:hover {
-          border-color: var(--border-hover);
-          transform: translateY(-6px);
-          box-shadow: 0 24px 70px rgba(0,0,0,0.6);
-        }
-
-        .rm-card.active {
-          border-color: rgba(124,109,250,0.4);
-          box-shadow: 0 0 0 1px rgba(124,109,250,0.2), 0 20px 60px rgba(0,0,0,0.5);
-        }
-
-        .rm-card.completed-card { border-color: rgba(52,211,153,0.3); }
-
-        .rm-card-bar {
+          top: 98px; /* Alignment fix */
+          left: 0;
+          right: 0;
           height: 3px;
-          width: 100%;
-          flex-shrink: 0;
+          background: #27272a;
+          z-index: 0;
         }
 
-        /* ── Card head: padding đều 24px cả 4 cạnh, đồng nhất với card body ── */
-        .rm-card-head {
-          padding: 24px;
-          border-bottom: 1px solid var(--border);
+        /* --- Node Styling --- */
+        .rm-node-wrapper {
+          scroll-snap-align: center;
           flex-shrink: 0;
-          background: rgba(255,255,255,0.02);
-          box-sizing: border-box;
+          width: 380px;
+          margin-right: 32px;
+          position: relative;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 20px;
+          opacity: 0.5;
+          transform: scale(0.98);
+          transition: all 0.3s ease;
+        }
+        
+        .rm-node-wrapper.is-active {
+          opacity: 1;
+          transform: scale(1);
         }
 
-        .rm-card-stage-tag {
-          display: inline-flex;
+        /* Connecting line per node */
+        .rm-node-line {
+          position: absolute;
+          top: 28px;
+          right: -32px;
+          width: 32px;
+          height: 3px;
+          background: #27272a;
+        }
+        .rm-node-line.filled { background: var(--success); }
+
+        /* Header: Icon + Title */
+        .rm-node-head {
+          display: flex;
           align-items: center;
-          gap: 5px;
-          font-size: 9px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.12em;
+          gap: 16px;
+          cursor: pointer;
+          position: relative;
+          z-index: 2;
+        }
+        
+        .rm-icon-box {
+          width: 56px;
+          height: 56px;
+          background: var(--bg-card);
+          border: 2px solid var(--border-color);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          color: var(--text-secondary);
+          transition: all 0.2s;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .rm-node-wrapper.is-active .rm-icon-box {
+          border-color: currentColor; /* Inherits from inline style color */
+          box-shadow: 0 0 0 4px rgba(255,255,255,0.05);
+        }
+
+        .rm-icon-box.completed {
+          background: var(--success);
+          border-color: var(--success);
+          color: white !important;
+        }
+
+        .rm-node-info h3 {
+          font-size: 18px;
+          font-weight: 700;
+          margin: 0;
+          line-height: 1.2;
+        }
+        .rm-node-info span {
+          font-size: 12px;
           text-transform: uppercase;
-          padding: 3px 8px;
-          border-radius: 6px;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          color: var(--muted);
-          align-self: flex-start;
+          letter-spacing: 0.05em;
+          font-weight: 600;
+          opacity: 0.8;
         }
 
-        .rm-card-title {
-          font-size: 19px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          color: var(--text);
-          line-height: 1.3;
-        }
-
-        .rm-card-desc {
-          font-size: 13.5px;
-          line-height: 1.65;
-          color: var(--muted);
-          font-weight: 400;
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        /* ── Card body: padding 24px đồng nhất với head ── */
-        .rm-card-body {
-          flex: 1;
-          overflow-y: auto;
+        /* --- CARD STYLING (Sharp & Solid) --- */
+        .rm-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-top: 4px solid transparent; /* Placeholder for color */
+          border-radius: 12px;
           padding: 24px;
+          height: 480px;
           display: flex;
           flex-direction: column;
-          gap: 22px;
-          scrollbar-width: thin;
-          scrollbar-color: rgba(255,255,255,0.1) transparent;
-          box-sizing: border-box;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Deep shadow */
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .rm-node-wrapper.is-active .rm-card {
+          border-color: #3f424e;
+          /* Top border color comes from inline style */
+          transform: translateY(-5px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
-        .rm-card-body::-webkit-scrollbar { width: 3px; }
-        .rm-card-body::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.1);
-          border-radius: 3px;
+        .rm-card-content {
+          overflow-y: auto;
+          flex: 1;
+          padding-right: 8px;
+        }
+        
+        /* Custom Scrollbar for card */
+        .rm-card-content::-webkit-scrollbar { width: 6px; }
+        .rm-card-content::-webkit-scrollbar-track { background: #27272a; border-radius: 4px; }
+        .rm-card-content::-webkit-scrollbar-thumb { background: #52525b; border-radius: 4px; }
+
+        .rm-desc {
+          color: #d1d5db;
+          font-size: 14px;
+          line-height: 1.6;
+          margin-bottom: 24px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid #27272a;
         }
 
         .rm-section-label {
-          font-size: 9px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.14em;
+          font-size: 11px;
+          font-weight: 700;
           text-transform: uppercase;
-          color: var(--muted);
-          margin-bottom: 10px;
+          color: #6b7280;
+          margin-bottom: 12px;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
         }
 
-        .rm-section {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .rm-section .rm-section-label {
-          margin-bottom: 0;
-        }
-
-        .rm-section-label::before {
-          content: '';
+        /* Tags with COLOR */
+        .rm-tag {
           display: inline-block;
-          width: 12px;
-          height: 1px;
-          background: currentColor;
-          opacity: 0.5;
-        }
-
-        .rm-skills {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .rm-skill-tag {
-          font-size: 11.5px;
-          font-family: 'JetBrains Mono', monospace;
-          padding: 6px 12px;
-          border-radius: 8px;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          color: var(--text);
-          letter-spacing: 0.02em;
-          transition: border-color 0.15s, background 0.15s;
-          font-weight: 500;
-        }
-
-        .rm-skill-tag:hover {
-          border-color: var(--accent);
-          background: var(--accent)/10;
-        }
-
-        .rm-project-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          padding: 12px 14px;
-          border-radius: 12px;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          font-size: 13px;
-          color: var(--text);
-          line-height: 1.5;
-          transition: border-color 0.15s, background 0.15s, transform 0.15s;
-        }
-
-        .rm-project-item:hover {
-          border-color: var(--border-hover);
-          background: var(--surface);
-          transform: translateX(4px);
-        }
-
-        .rm-project-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          flex-shrink: 0;
-          margin-top: 5px;
-        }
-
-        .rm-course-link {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 12px 14px;
-          border-radius: 12px;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          text-decoration: none;
-          color: var(--text);
-          font-size: 13px;
-          transition: border-color 0.2s, background 0.2s, transform 0.2s;
-        }
-
-        .rm-course-link:hover {
-          border-color: var(--accent);
-          background: rgba(124,109,250,0.1);
-          transform: translateX(4px);
-        }
-
-        .rm-course-title { font-weight: 600; line-height: 1.35; }
-
-        .rm-course-arrow {
-          flex-shrink: 0;
           font-size: 12px;
-          opacity: 0.4;
-          transition: opacity 0.15s, transform 0.15s;
+          font-weight: 600;
+          padding: 6px 10px;
+          border-radius: 6px;
+          margin: 0 8px 8px 0;
+          border: 1px solid transparent;
         }
 
-        .rm-course-link:hover .rm-course-arrow {
-          opacity: 0.9;
-          transform: translate(2px, -2px);
+        /* Project List */
+        .rm-proj-item {
+          background: #1f2229;
+          padding: 10px 12px;
+          border-radius: 8px;
+          margin-bottom: 8px;
+          font-size: 13px;
+          border-left: 3px solid transparent;
+          color: #e5e7eb;
         }
 
-        .rm-scroll-btn {
+        /* Course Link */
+        .rm-course-link {
+          display: block;
+          background: #000;
+          border: 1px solid #27272a;
+          padding: 12px;
+          border-radius: 8px;
+          margin-bottom: 10px;
+          text-decoration: none;
+          color: white;
+          transition: 0.2s;
+        }
+        .rm-course-link:hover {
+          border-color: white;
+        }
+
+        /* Navigation Buttons */
+        .rm-nav-arrow {
           position: absolute;
-          z-index: 20;
           top: 50%;
           transform: translateY(-50%);
-          width: 42px;
-          height: 42px;
+          z-index: 10;
+          width: 48px;
+          height: 48px;
           border-radius: 50%;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          color: var(--text);
+          background: #27272a;
+          color: white;
+          border: none;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: border-color 0.15s, background 0.15s, opacity 0.15s, transform 0.15s;
-          font-size: 16px;
-          font-family: 'JetBrains Mono', monospace;
-          backdrop-filter: blur(8px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+          transition: background 0.2s;
         }
-
-        .rm-scroll-btn:hover {
-          background: var(--surface2);
-          border-color: var(--border-hover);
-          transform: translateY(-50%) scale(1.08);
-        }
-
-        .rm-scroll-btn:disabled {
-          opacity: 0.2;
-          cursor: not-allowed;
-          transform: translateY(-50%) scale(1);
-        }
-
-        .rm-scroll-btn.left { left: 16px; }
-        .rm-scroll-btn.right { right: 16px; }
-
-        .rm-empty {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 16px;
-          z-index: 5;
-        }
-
-        .rm-empty-glyph {
-          font-size: 64px;
-          opacity: 0.08;
-          line-height: 1;
-          font-family: 'JetBrains Mono', monospace;
-        }
-
-        .rm-empty-title {
-          font-size: 22px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-          color: var(--text);
-          opacity: 0.7;
-        }
-
-        .rm-empty-sub {
-          font-size: 13px;
-          color: var(--muted);
-          max-width: 300px;
-          text-align: center;
-          line-height: 1.6;
-        }
-
-        .rm-loader {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 20px;
-          z-index: 5;
-        }
-
-        .rm-spinner {
-          width: 40px;
-          height: 40px;
-          border: 2px solid rgba(255,255,255,0.06);
-          border-top-color: var(--accent);
-          border-radius: 50%;
-          animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .rm-loading-label {
-          font-size: 12px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.1em;
-          color: var(--muted);
-          text-transform: uppercase;
-        }
-
-        .rm-error {
-          position: absolute;
-          top: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 30;
-          padding: 10px 22px;
-          border-radius: 100px;
-          background: rgba(239,68,68,0.12);
-          border: 1px solid rgba(239,68,68,0.3);
-          color: #fca5a5;
-          font-size: 12.5px;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.04em;
-          white-space: nowrap;
-          animation: fadeDown 0.3s ease both;
-        }
-
-        @keyframes fadeDown {
-          from { opacity: 0; transform: translate(-50%, -8px); }
-          to   { opacity: 1; transform: translate(-50%, 0); }
-        }
-
-        .rm-start-cap,
-        .rm-end-cap {
-          flex-shrink: 0;
-          width: 50px;
-          display: flex;
-          align-items: flex-start;
-          padding-top: 28px;
-          justify-content: center;
-          opacity: 0.15;
-        }
-
-        .rm-end-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: var(--muted);
-        }
-
-        .rm-stage:nth-child(2) { animation-delay: 0.05s; }
-        .rm-stage:nth-child(3) { animation-delay: 0.12s; }
-        .rm-stage:nth-child(4) { animation-delay: 0.19s; }
-        .rm-stage:nth-child(5) { animation-delay: 0.26s; }
-        .rm-stage:nth-child(6) { animation-delay: 0.33s; }
-        .rm-stage:nth-child(7) { animation-delay: 0.40s; }
-
-        .rm-stage + .rm-stage { margin-left: 24px; }
+        .rm-nav-arrow:hover { background: #3f3f46; }
+        .rm-nav-arrow:disabled { opacity: 0.3; cursor: default; }
+        .rm-nav-left { left: 24px; }
+        .rm-nav-right { right: 24px; }
+        
       `}</style>
 
-      <div className="rm-root">
-        <div className="rm-ambient" />
-        <div className="rm-scanlines" />
+      {/* --- Ambient Background --- */}
+      <div className="rm-grid-bg" />
 
-        <header className="rm-header">
-          <div className="rm-logo">
-            <div className="rm-logo-mark">
-              <img src="/logo.png" alt="Logo" />
-            </div>
-            <div className="rm-logo-text">
-              <div className="rm-logo-title">Pathfinder</div>
-              <div className="rm-logo-sub">learning roadmap</div>
-            </div>
+      {/* --- Header --- */}
+      <header className="rm-header">
+        <div className="rm-brand">
+          <div className="rm-logo-box">
+            <Layers size={20} strokeWidth={2.5} />
           </div>
+          <span className="rm-brand-text">Pathfinder</span>
+        </div>
 
-          <div className="rm-search-wrap">
-            <div className={`rm-search-inner${inputFocused ? ' focused' : ''}`}>
-              <div className="rm-search-icon">~/goal</div>
-              <input
-                className="rm-search-input"
-                type="text"
-                value={userGoal}
-                onChange={e => setUserGoal(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && generateRoadmap()}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                placeholder="e.g. Python Backend Developer, iOS Engineer…"
-                disabled={loading}
-              />
-              <button
-                className="rm-search-btn"
-                onClick={generateRoadmap}
-                disabled={loading || !userGoal.trim()}
-              >
-                {loading ? (
-                  <>
-                    <div className="rm-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
-                    Generating
-                  </>
+        <div className="rm-search-bar">
+          <Search size={16} className="text-gray-500 ml-2" />
+          <input
+            className="rm-input"
+            placeholder="Goal (e.g. React Native, Data Science...)"
+            value={userGoal}
+            onChange={(e) => setUserGoal(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && generateRoadmap()}
+          />
+          <button
+            className="rm-btn-action"
+            onClick={generateRoadmap}
+            disabled={loading || !userGoal.trim()}
+          >
+            {loading ? '...' : 'Generate'}
+          </button>
+        </div>
+
+        <div className="relative" ref={dropdownRef}>
+          <button
+            className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors px-3 py-2 rounded hover:bg-[#27272a]"
+            onClick={() => setShowPathsDropdown(!showPathsDropdown)}
+          >
+            <History size={16} />
+            <span className="hidden sm:inline">Saved Paths</span>
+            <ChevronDown size={14} />
+          </button>
+
+          {showPathsDropdown && (
+            <div className="absolute top-full right-0 mt-2 w-72 bg-[#18181b] border border-[#27272a] rounded-lg shadow-2xl overflow-hidden z-50">
+              <div className="p-3 bg-[#1f2229] text-[11px] font-bold text-gray-500 uppercase tracking-wider border-b border-[#27272a]">Recent History</div>
+              <div className="max-h-64 overflow-y-auto">
+                {savedPaths.length === 0 ? (
+                  <div className="p-4 text-xs text-center text-gray-500">No saved history</div>
                 ) : (
-                  <>↗ Generate</>
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div style={{ position: 'relative' }} ref={dropdownRef}>
-            <button
-              className={`rm-saved-trigger${showPathsDropdown ? ' active' : ''}`}
-              onClick={() => setShowPathsDropdown(!showPathsDropdown)}
-            >
-              <History size={16} />
-              <span>Saved Paths</span>
-              <ChevronDown size={14} style={{ opacity: 0.5, transform: showPathsDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-            </button>
-
-            {showPathsDropdown && (
-              <div className="rm-paths-dropdown">
-                <div className="rm-dropdown-header">
-                  <div className="rm-dropdown-title">Learning History</div>
-                </div>
-                <div className="rm-path-list">
-                  {savedPaths.length === 0 ? (
-                    <div style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
-                      No saved paths yet
+                  savedPaths.map(p => (
+                    <div key={p.id} className="p-3 hover:bg-[#27272a] cursor-pointer border-b border-[#27272a] last:border-0"
+                      onClick={() => { setRoadmap(p.roadmap_data); setShowPathsDropdown(false); }}>
+                      <div className="text-sm font-semibold text-white">{p.goal}</div>
+                      <div className="text-[11px] text-gray-500 mt-1">{new Date(p.created_at).toLocaleDateString()}</div>
                     </div>
-                  ) : (
-                    savedPaths.map(path => (
-                      <button
-                        key={path.id}
-                        className="rm-path-item"
-                        onClick={() => selectPath(path)}
-                      >
-                        <div className="rm-path-goal">{path.goal}</div>
-                        <div className="rm-path-meta">
-                          {new Date(path.created_at).toLocaleDateString()} • {path.roadmap_data.nodes.length} stages
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {roadmap && (
-            <div className="rm-stats">
-              <div className="rm-stat" style={{ alignItems: 'flex-end' }}>
-                <div className="rm-stat-label">Progress</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div className="rm-progress-bar-wrap">
-                    <div className="rm-progress-bar-fill" style={{ width: `${progress}%` }} />
-                  </div>
-                  <div className="rm-stat-value" style={{ minWidth: 34, fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: progress === 100 ? 'var(--success)' : 'var(--accent2)' }}>
-                    {progress}%
-                  </div>
-                </div>
-              </div>
-              <div className="rm-stat">
-                <div className="rm-stat-label">Stages</div>
-                <div className="rm-stat-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
-                  {completedNodes.size} / {roadmap.nodes.length}
-                </div>
+                  ))
+                )}
               </div>
             </div>
           )}
-        </header>
+        </div>
+      </header>
 
-        {roadmap && (
-          <div className="rm-goal-strip">
-            <div className="rm-goal-label">target</div>
-            <div className="rm-goal-divider" />
-            <div className="rm-goal-text">{roadmap.goal}</div>
-            <div className="rm-badge">{roadmap.timeline_style || 'progressive'}</div>
+      {/* --- Main Area --- */}
+      <div className="rm-timeline-zone">
+
+        {loading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0c0e12] z-50">
+            <div className="w-10 h-10 border-4 border-[#27272a] border-t-blue-500 rounded-full animate-spin mb-4" />
+            <div className="text-sm font-mono text-gray-400">BUILDING YOUR ROADMAP...</div>
           </div>
         )}
 
-        <div className="rm-timeline-area">
-          {error && <div className="rm-error">⚠ {error}</div>}
+        {error && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-900/30 border border-red-500 text-red-400 px-6 py-3 rounded-lg text-sm font-bold shadow-lg z-50">
+            Error: {error}
+          </div>
+        )}
 
-          {!roadmap && !loading && (
-            <div className="rm-empty">
-              <div className="rm-empty-glyph">◈</div>
-              <div className="rm-empty-title">Chart your course</div>
-              <div className="rm-empty-sub">
-                Enter a learning goal above and get a step-by-step roadmap built for you.
+        {!roadmap && !loading && (
+          <div className="flex flex-col items-center justify-center h-full opacity-30">
+            <Layers size={64} className="mb-4" />
+            <h2 className="text-2xl font-bold">Start Learning</h2>
+            <p className="mt-2">Enter a topic above to begin</p>
+          </div>
+        )}
+
+        {roadmap && !loading && (
+          <>
+            {/* Top Info Strip */}
+            <div className="rm-progress-strip">
+              <div>
+                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Target Goal</div>
+                <div className="rm-goal-title">{roadmap.goal}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs font-bold text-gray-400 mb-2">
+                  <span className="text-white text-base">{completedNodes.size}</span> / {roadmap.nodes.length} Stages
+                </div>
+                <div className="rm-progress-track">
+                  <div className="rm-progress-fill" style={{ width: `${calculateProgress()}%` }} />
+                </div>
               </div>
             </div>
-          )}
 
-          {loading && (
-            <div className="rm-loader">
-              <div className="rm-spinner" />
-              <div className="rm-loading-label">Generating roadmap…</div>
-            </div>
-          )}
+            {/* Navigation Arrows */}
+            <button className="rm-nav-arrow rm-nav-left" onClick={() => scroll('left')}>←</button>
+            <button className="rm-nav-arrow rm-nav-right" onClick={() => scroll('right')}>→</button>
 
-          {roadmap && !loading && (
-            <>
-              <div className="rm-connector-line" />
+            {/* Horizontal Scroll Track */}
+            <div className="rm-scroll-track" ref={scrollRef}>
 
-              <button
-                className="rm-scroll-btn left"
-                onClick={() => scroll('left')}
-                disabled={!canScrollLeft}
-              >
-                ←
-              </button>
-              <button
-                className="rm-scroll-btn right"
-                onClick={() => scroll('right')}
-                disabled={!canScrollRight}
-              >
-                →
-              </button>
+              {/* Connector Background Line */}
+              <div className="rm-connector-bg" />
 
-              <div className="rm-scroll-track" ref={scrollRef}>
-                <div className="rm-start-cap">
-                  <div className="rm-end-dot" />
-                </div>
+              {roadmap.nodes.map((node, index) => {
+                const isCompleted = completedNodes.has(node.id);
+                const isActive = activeNodeId === node.id;
+                // Get color palette for this specific node
+                const palette = NODE_PALETTES[index % NODE_PALETTES.length];
+                const isLast = index === roadmap.nodes.length - 1;
 
-                {roadmap.nodes.map((node, index) => {
-                  const palette = NODE_PALETTES[index % NODE_PALETTES.length];
-                  const glyph = NODE_GLYPHS[index % NODE_GLYPHS.length];
-                  const isCompleted = completedNodes.has(node.id);
-                  const isActive = activeNode === node.id;
+                return (
+                  <div
+                    key={node.id}
+                    id={`node-${node.id}`}
+                    className={`rm-node-wrapper ${isActive ? 'is-active' : ''}`}
+                    onClick={() => setActiveNodeId(node.id)}
+                  >
+                    {/* Line connecting to next node */}
+                    {!isLast && (
+                      <div className={`rm-node-line ${isCompleted ? 'filled' : ''}`} />
+                    )}
 
-                  return (
-                    <div
-                      key={node.id}
-                      className="rm-stage"
-                      onClick={() => setActiveNode(isActive ? null : node.id)}
-                    >
-                      <div className="rm-orb-wrap">
-                        <button
-                          className={`rm-orb${isCompleted ? ' completed' : ''}`}
-                          style={{
-                            background: isCompleted
-                              ? `rgba(52,211,153,0.1)`
-                              : `${palette.bg}18`,
-                            boxShadow: isCompleted
-                              ? `0 0 24px rgba(52,211,153,0.3), 0 0 0 1.5px rgba(52,211,153,0.3)`
-                              : `0 0 24px ${palette.glow}, 0 0 0 1.5px ${palette.bg}40`,
-                          }}
-                          onClick={e => { e.stopPropagation(); toggleComplete(node.id); }}
-                          title="Click to mark complete"
-                        >
-                          <span style={{ color: palette.bg, fontSize: 20 }}>{glyph}</span>
-                        </button>
-                        <div className="rm-orb-num">
-                          stage {String(index + 1).padStart(2, '0')}
-                        </div>
+                    {/* Node Header */}
+                    <div className="rm-node-head">
+                      <div
+                        className={`rm-icon-box ${isCompleted ? 'completed' : ''}`}
+                        style={{ color: isCompleted ? '#fff' : palette.main }}
+                        onClick={(e) => { e.stopPropagation(); toggleComplete(node.id, index); }}
+                      >
+                        {isCompleted ? <CheckCircle2 size={24} /> : <span className="font-mono font-bold">{index + 1}</span>}
                       </div>
+                      <div className="rm-node-info">
+                        <span style={{ color: palette.main }}>Stage {index + 1}</span>
+                        <h3>{node.title}</h3>
+                      </div>
+                    </div>
 
-                      <div className={`rm-card${isActive ? ' active' : ''}${isCompleted ? ' completed-card' : ''}`}>
-                        <div
-                          className="rm-card-bar"
-                          style={{
-                            background: isCompleted
-                              ? `linear-gradient(90deg, var(--success), #6ee7b7)`
-                              : `linear-gradient(90deg, ${palette.bg}, ${palette.bar})`,
-                          }}
-                        />
+                    {/* Node Card */}
+                    <div
+                      className="rm-card"
+                      style={{ borderTopColor: palette.main }}
+                    >
+                      <div className="rm-card-content">
+                        <p className="rm-desc">{node.description}</p>
 
-                        <div className="rm-card-head">
-                          <div className="rm-card-stage-tag">
-                            <span style={{ color: palette.bg }}>●</span>
-                            {palette.label}
-                          </div>
-                          <div className="rm-card-title">{node.title}</div>
-                          <div className="rm-card-desc">{node.description}</div>
-                        </div>
-
-                        <div className="rm-card-body">
-                          {node.skills.length > 0 && (
+                        {/* Skills Section */}
+                        {node.skills.length > 0 && (
+                          <div className="mb-6">
+                            <div className="rm-section-label"><Cpu size={12} /> Key Skills</div>
                             <div>
-                              <div className="rm-section-label">skills to master</div>
-                              <div className="rm-skills">
-                                {node.skills.map((skill, i) => (
-                                  <div key={i} className="rm-skill-tag">{skill}</div>
-                                ))}
-                              </div>
+                              {node.skills.map((skill, i) => (
+                                <span
+                                  key={i}
+                                  className="rm-tag"
+                                  style={{ background: palette.bg, color: palette.text, borderColor: palette.bg }}
+                                >
+                                  {skill}
+                                </span>
+                              ))}
                             </div>
-                          )}
+                          </div>
+                        )}
 
-                          {node.projects.length > 0 && (
-                            <div className="rm-section">
-                              <div className="rm-section-label">projects</div>
-                              {node.projects.map((p, i) => (
-                                <div key={i} className="rm-project-item">
-                                  <div
-                                    className="rm-project-dot"
-                                    style={{ background: palette.bg }}
-                                  />
-                                  {p}
+                        {/* Projects Section */}
+                        {node.projects.length > 0 && (
+                          <div className="mb-6">
+                            <div className="rm-section-label"><Code2 size={12} /> Build These</div>
+                            <div>
+                              {node.projects.map((proj, i) => (
+                                <div
+                                  key={i}
+                                  className="rm-proj-item"
+                                  style={{ borderLeftColor: palette.main }}
+                                >
+                                  {proj}
                                 </div>
                               ))}
                             </div>
-                          )}
+                          </div>
+                        )}
 
-                          {node.courses.length > 0 && (
-                            <div className="rm-section">
-                              <div className="rm-section-label">recommended courses</div>
-                              {node.courses.map((course, i) => (
-                                <a
-                                  key={i}
-                                  href={course.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="rm-course-link"
-                                  onClick={e => e.stopPropagation()}
-                                >
-                                  <div className="rm-course-title">{course.title}</div>
-                                  <div className="rm-course-arrow">↗</div>
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        {/* Courses Section */}
+                        {node.courses.length > 0 && (
+                          <div className="mb-2">
+                            <div className="rm-section-label"><BookOpen size={12} /> Learn Here</div>
+                            {node.courses.map((course, i) => (
+                              <a
+                                key={i}
+                                href={course.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="rm-course-link"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                <div className="flex justify-between items-center mb-1">
+                                  <span className="font-bold text-sm">{course.title}</span>
+                                  <ArrowRight size={14} style={{ color: palette.main }} />
+                                </div>
+                                <div className="text-xs text-gray-500">{course.reason}</div>
+                              </a>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  );
-                })}
-
-                <div className="rm-end-cap">
-                  <div className="rm-end-dot" />
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
