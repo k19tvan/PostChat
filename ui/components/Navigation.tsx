@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, LayoutList, Settings, Activity, LogIn, Sun, Moon } from 'lucide-react';
+import { MessageSquare, LayoutList, Settings, Activity, LogIn, Sun, Moon, Target } from 'lucide-react';
 import { AppMode } from '../types';
 
 interface NavigationProps {
@@ -13,64 +13,84 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ currentMode, onModeChange, onLogout, user, theme, toggleTheme }) => {
   return (
-    <nav className="hidden md:flex flex-col w-20 lg:w-72 bg-white dark:bg-[#0b0e14] h-screen sticky top-0 z-40 border-r border-slate-200 dark:border-slate-900 transition-colors duration-300">
-      <div className="pt-12 pb-8 px-8 flex items-center justify-center lg:justify-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <Activity className="text-white w-6 h-6" />
+    <nav className="hidden md:flex flex-col w-20 lg:w-72 bg-[var(--surface)] h-screen sticky top-0 z-40 border-r border-[var(--border)] transition-colors duration-300 font-['Syne']">
+      <div className="pt-10 pb-8 px-6 flex items-center justify-center lg:justify-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center shadow-lg shadow-[var(--accent)]/30 group hover:scale-110 transition-transform duration-300">
+          <Activity className="text-white w-6 h-6 animate-pulse" />
         </div>
-        <span className="text-2xl font-bold text-slate-800 dark:text-white hidden lg:block tracking-tight">
-          PostChat
-        </span>
+        <div className="hidden lg:flex flex-col">
+          <span className="text-2xl font-bold text-[var(--text)] tracking-tight leading-none">
+            PostChat
+          </span>
+          <span className="text-[10px] text-[var(--muted)] font-['JetBrains_Mono'] tracking-widest uppercase mt-1">
+            v2.0 Beta
+          </span>
+        </div>
       </div>
 
-      <div className="flex-1 py-4 flex flex-col gap-1 px-4">
+      <div className="flex-1 py-6 flex flex-col gap-2 px-4">
+        <div className="px-2 mb-2 hidden lg:block">
+          <span className="text-[10px] uppercase font-bold text-[var(--muted)] tracking-widest opacity-60">Modules</span>
+        </div>
         <NavButton
           active={currentMode === AppMode.CONVERSATION}
           onClick={() => onModeChange(AppMode.CONVERSATION)}
-          icon={<MessageSquare size={22} />}
+          icon={<MessageSquare size={20} />}
           label="Conversation"
         />
         <NavButton
           active={currentMode === AppMode.POSTS}
           onClick={() => onModeChange(AppMode.POSTS)}
-          icon={<LayoutList size={22} />}
+          icon={<LayoutList size={20} />}
           label="Feed Analyzer"
+        />
+        <NavButton
+          active={currentMode === AppMode.ROADMAP}
+          onClick={() => onModeChange(AppMode.ROADMAP)}
+          icon={<Target size={20} />}
+          label="Learning Roadmap"
         />
       </div>
 
-      <div className="px-4 pb-2">
+      <div className="px-4 pb-4 border-t border-[var(--border)] pt-4">
+        <div className="p-3 bg-[var(--surface2)] rounded-2xl border border-[var(--border)] hover:border-[var(--muted)] transition-colors group relative overflow-hidden">
+          {/* Ambient glow behind profile */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          <div className="relative flex items-center gap-3">
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="w-10 h-10 rounded-xl border border-[var(--border)] shadow-md"
+            />
+            <div className="hidden lg:block flex-1 min-w-0">
+              <p className="text-sm font-bold text-[var(--text)] truncate">{user.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
+                <p className="text-[10px] text-[var(--muted)] font-mono font-medium">ONLINE</p>
+              </div>
+            </div>
+            <button
+              onClick={onLogout}
+              title="Sign Out"
+              className="hidden lg:flex p-2 text-[var(--muted)] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+            >
+              <LogIn size={18} />
+            </button>
+          </div>
+        </div>
+
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 dark:text-slate-400 dark:hover:text-slate-200"
+          className="w-full mt-3 flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-xl transition-all duration-200 text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--surface2)]"
         >
-          <div className="text-slate-500 dark:text-slate-400">
-            {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
+          <div className="text-[var(--accent)] group-hover:rotate-45 transition-transform duration-300">
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </div>
-          <span className="font-semibold hidden lg:block text-[15px]">
+          <span className="font-semibold hidden lg:block text-xs font-mono uppercase tracking-wider">
             {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           </span>
         </button>
-      </div>
-
-      <div className="p-4 bg-slate-50 dark:bg-slate-900/40 mt-auto border-t border-slate-200 dark:border-slate-800/50 transition-colors duration-300">
-        <div className="group relative flex items-center gap-3 px-3 py-3 rounded-2xl hover:bg-slate-200/50 dark:hover:bg-slate-800/40 transition-all duration-300">
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-10 h-10 rounded-xl border border-indigo-500/30 shadow-lg shadow-indigo-500/10"
-          />
-          <div className="hidden lg:block flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{user.name}</p>
-            <p className="text-[10px] text-slate-500 font-medium">Free Member</p>
-          </div>
-          <button
-            onClick={onLogout}
-            title="Sign Out"
-            className="hidden lg:flex p-2 text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-all"
-          >
-            <LogIn size={18} />
-          </button>
-        </div>
       </div>
     </nav>
   );
@@ -87,19 +107,20 @@ const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon, label }) =
   <button
     onClick={onClick}
     className={`
-      flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group relative
+      flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden
       ${active
-        ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400'
-        : 'text-slate-500 hover:bg-slate-100/80 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-200'
+        ? 'bg-[var(--accent)]/10 text-[var(--accent)] shadow-[0_0_20px_rgba(124,109,250,0.15)] border border-[var(--accent)]/20'
+        : 'text-[var(--muted)] hover:bg-[var(--surface2)] hover:text-[var(--text)] border border-transparent hover:border-[var(--border)]'
       }
     `}
   >
-    <div className={`${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`}>
+    <div className={`transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
       {icon}
     </div>
-    <span className="font-semibold hidden lg:block text-[15px]">{label}</span>
+    <span className="font-semibold hidden lg:block text-[14px]">{label}</span>
+
     {active && (
-      <div className="absolute right-4 w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] hidden lg:block" />
+      <div className="hidden lg:block absolute right-0 inset-y-0 w-1 bg-[var(--accent)] rounded-l-full shadow-[0_0_10px_var(--accent)]" />
     )}
   </button>
 );

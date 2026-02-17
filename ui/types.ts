@@ -1,6 +1,7 @@
 export enum AppMode {
   CONVERSATION = 'CONVERSATION',
-  POSTS = 'POSTS'
+  POSTS = 'POSTS',
+  ROADMAP = 'ROADMAP'
 }
 
 export interface Message {

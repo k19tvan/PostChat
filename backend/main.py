@@ -19,6 +19,9 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.documents import Document
 from langchain_community.vectorstores import SupabaseVectorStore
 
+# Agents
+from agents.course_roadmap_agent import CourseRoadmapAgent
+
 # Supabase
 from supabase.client import Client, create_client
 
@@ -41,6 +44,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("VITE_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY") or os.getenv("VITE_SUPABASE_ANON_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 APIFY_API_KEY = os.getenv("APIFY_API_KEY")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "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")  # Fallback to key from crawler.py
 
 if not all([SUPABASE_URL, SUPABASE_KEY, GOOGLE_API_KEY]):
     print("⚠ Warning: Missing critical environment variables (SUPABASE_*, GOOGLE_API_KEY)")
@@ -73,6 +77,21 @@ if SUPABASE_URL and SUPABASE_KEY and GOOGLE_API_KEY:
         print("✓ Vector store initialized for advanced search")
     except Exception as e:
         print(f"⚠ Warning: Vector store not initialized: {e}")
+
+# Initialize CourseRoadmapAgent
+roadmap_agent: Optional[CourseRoadmapAgent] = None
+if GOOGLE_API_KEY and TAVILY_API_KEY:
+    try:
+        roadmap_agent = CourseRoadmapAgent(
+            google_api_key=GOOGLE_API_KEY,
+            tavily_api_key=TAVILY_API_KEY,
+            supabase_client=supabase_client,
+            vector_store=vector_store,
+            embeddings=embeddings
+        )
+        print("✓ CourseRoadmapAgent initialized")
+    except Exception as e:
+        print(f"⚠ Warning: CourseRoadmapAgent not initialized: {e}")
 
 # --- Pydantic Models for AI Extraction ---
 
@@ -142,6 +161,9 @@ class ChatRequest(BaseModel):
     message: str
     conversation_history: List[ChatMessage] = []
 
+class RoadmapRequest(BaseModel):
+    goal: str = Field(description="User's learning goal in natural language")
+
 # --- Helper Functions ---
 
 def get_gemini_extractor():
@@ -150,7 +172,7 @@ def get_gemini_extractor():
         raise HTTPException(500, "Server Error: GOOGLE_API_KEY/GEMINI_API_KEY not set")
         
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash", # Fast and capable for extraction
+        model="gemini-2.5-flash-lite", # Fast and capable for extraction
         google_api_key=GOOGLE_API_KEY,
         temperature=0.1, # Low temperature for factual extraction
         max_retries=2
@@ -425,6 +447,39 @@ async def chat(request: ChatRequest):
 
     except Exception as e:
         print(f"❌ Chat error: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.post("/roadmap")
+async def generate_roadmap(request: RoadmapRequest):
+    """
+    Generate a personalized learning roadmap using the CourseRoadmapAgent.
+    
+    This endpoint executes the 6-step pipeline:
+    1. Understand user profile
+    2. Generate search queries
+    3. Clean advisement corpus (via Tavily)
+    4. Build staged roadmap
+    5. Fill each stage with resources (posts from vector store)
+    6. Output UI-ready learning path
+    """
+    try:
+        if not roadmap_agent:
+            raise HTTPException(503, "CourseRoadmapAgent not available (check API keys)")
+        
+        print(f"🧠 Generating roadmap for goal: {request.goal}")
+        
+        # Execute the full 6-step pipeline
+        roadmap = await roadmap_agent.create_roadmap(request.goal)
+        
+        return {
+            "success": True,
+            "data": roadmap
+        }
+    
+    except Exception as e:
+        print(f"❌ Roadmap generation error: {e}")
+        import traceback
+        traceback.print_exc()
         return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":

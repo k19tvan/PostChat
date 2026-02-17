@@ -13,7 +13,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
   const [analyzing, setAnalyzing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showOcr, setShowOcr] = useState<Record<number, boolean>>({}); // Track OCR visibility per image index
+  const [showOcr, setShowOcr] = useState<Record<number, boolean>>({});
 
   const MAX_CHAR_LIMIT = 280;
   const shouldTruncate = post.content.length > MAX_CHAR_LIMIT;
@@ -43,42 +43,58 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
   };
 
   return (
-    <div className={`bg-white/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-xl overflow-hidden hover:border-slate-300 dark:hover:border-slate-600 transition-all ${deleting ? 'opacity-50 scale-95' : ''}`}>
+    <div className={`
+      relative group overflow-hidden transition-all duration-300
+      bg-[var(--surface)] border border-[var(--border)] rounded-2xl hover:border-[var(--border-hover)]
+      ${deleting ? 'opacity-50 scale-95' : ''}
+    `}>
+      {/* Glow effect on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-[var(--accent)]/5 to-transparent pointer-events-none" />
 
       {/* Header */}
-      <div className="p-4 flex items-start justify-between">
-        <div className="flex gap-3">
-          <img
-            src={post.authorAvatar}
-            alt={post.authorName}
-            className="w-10 h-10 rounded-full object-cover border-2 border-slate-600"
-          />
+      <div className="p-5 flex items-start justify-between relative z-10 border-b border-[var(--border)]">
+        <div className="flex gap-4">
+          <div className="relative">
+            <img
+              src={post.authorAvatar}
+              alt={post.authorName}
+              className="w-12 h-12 rounded-xl object-cover border border-[var(--border)] shadow-lg shadow-black/20"
+            />
+            {/* Status dot */}
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[var(--success)] rounded-full border-2 border-[var(--surface)]" />
+          </div>
+
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-slate-900 dark:text-white text-sm">{post.authorName}</h3>
+            <div className="flex items-center gap-3">
+              <h3 className="font-bold text-[var(--text)] text-base tracking-tight">{post.authorName}</h3>
               {post.category && (
-                <span className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold rounded uppercase tracking-wider border border-indigo-200 dark:border-indigo-500/20">
+                <span className="px-2 py-0.5 bg-[var(--surface2)] text-[var(--accent2)] text-[10px] font-bold rounded uppercase tracking-wider border border-[var(--border)] font-['JetBrains_Mono']">
                   {post.category}
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-              <span title={post.timestamp}>{new Date(post.timestamp).toLocaleDateString()}</span>
+
+            <div className="flex items-center gap-2 mt-1 text-xs text-[var(--muted)] font-['JetBrains_Mono']">
+              <span>{new Date(post.timestamp).toLocaleDateString()}</span>
               <span>•</span>
-              <a href={post.url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1">
-                <Globe size={12} />
+              <a href={post.url} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent)] transition-colors flex items-center gap-1 group/link">
+                Source <Globe size={10} className="group-hover/link:animate-spin" />
               </a>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Sentiment Badge (if pre-calculated) */}
+        <div className="flex items-center gap-3">
           {sentiment && (
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sentiment.toLowerCase().includes('positive') ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/20' :
-              sentiment.toLowerCase().includes('negative') ? 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/20' :
-                'bg-slate-100 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-500/20'
-              }`}>
+            <span className={`
+              text-[10px] uppercase font-bold px-3 py-1 rounded-full border tracking-widest font-mono
+              ${sentiment.toLowerCase().includes('positive')
+                ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                : sentiment.toLowerCase().includes('negative')
+                  ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                  : 'bg-[var(--surface2)] text-[var(--muted)] border-[var(--border)]'
+              }
+            `}>
               {sentiment}
             </span>
           )}
@@ -86,28 +102,32 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="p-1.5 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50"
-            title="Delete from saved"
+            className="p-2 text-[var(--muted)] hover:text-red-400 transition-colors rounded-lg hover:bg-[var(--surface2)]"
           >
             <MoreHorizontal size={18} />
           </button>
         </div>
       </div>
 
-      {/* AI Summary Section (Highlighted) */}
+      {/* AI Analysis Section */}
       {post.summary && (
-        <div className="mx-4 mb-3 p-3 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-300 uppercase tracking-wide">AI Summary</span>
+        <div className="mx-5 mt-4 p-4 bg-[var(--surface2)]/50 border border-[var(--accent)]/20 rounded-xl relative overflow-hidden group/ai shadow-inner">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent)]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover/ai:bg-[var(--accent)]/20 transition-colors" />
+          <div className="absolute -inset-px bg-gradient-to-r from-[var(--accent)]/10 to-[var(--accent2)]/10 opacity-50 pointer-events-none" />
+
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <span className="text-[10px] font-bold text-[var(--accent2)] uppercase tracking-wider font-mono">AI Summary</span>
           </div>
-          <p className="text-sm text-indigo-900 dark:text-indigo-100/90 leading-relaxed font-medium">
+
+          <p className="text-sm text-[var(--text)] leading-relaxed opacity-90 relative z-10">
             {post.summary}
           </p>
+
           {post.topics && post.topics.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2.5">
+            <div className="flex flex-wrap gap-2 mt-3">
               {post.topics.map((topic, i) => (
-                <span key={i} className="px-2 py-0.5 bg-white dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-[10px] rounded-md font-medium border border-indigo-100 dark:border-transparent">
+                <span key={i} className="px-2 py-1 bg-[var(--surface)] text-[var(--accent)] text-[10px] rounded border border-[var(--border)] font-mono">
                   #{topic}
                 </span>
               ))}
@@ -116,9 +136,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
         </div>
       )}
 
-      {/* Original Content */}
-      <div className="px-4 pb-3">
-        <div className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line">
+      {/* Content Body */}
+      <div className="p-5">
+        <div className="text-[var(--text)] text-sm leading-7 whitespace-pre-line opacity-80 font-normal">
           {shouldTruncate && !isExpanded
             ? `${post.content.substring(0, MAX_CHAR_LIMIT)}...`
             : post.content}
@@ -126,7 +146,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
           {shouldTruncate && (
             <button
               onClick={toggleExpand}
-              className="ml-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium text-xs hover:underline focus:outline-none"
+              className="ml-2 text-[var(--accent)] hover:text-[var(--accent2)] text-xs font-bold uppercase tracking-wider hover:underline"
             >
               {isExpanded ? 'Show less' : 'Read more'}
             </button>
@@ -134,47 +154,44 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
         </div>
       </div>
 
-      {/* Media Gallery with OCR */}
+      {/* Media Gallery */}
       {post.media && post.media.length > 0 && (
-        <div className="px-4 pb-4">
-          <div className={`grid gap-2 ${post.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+        <div className="px-5 pb-5">
+          <div className={`grid gap-3 ${post.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {post.media.map((media: MediaItem, index: number) => (
-              <div key={index} className="relative group">
-                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/50 bg-slate-100 dark:bg-slate-900/50">
-                  {media.type === 'video' ? (
-                    <div className="relative aspect-video bg-black flex items-center justify-center">
-                      <span className="text-xs text-slate-500">Video Preview Placeholder</span>
-                      {/* Use thumbnail if available, otherwise just placeholder */}
-                      {media.thumbnail && <img src={media.thumbnail} className="absolute inset-0 w-full h-full object-cover opacity-60" />}
-                    </div>
-                  ) : (
-                    <img
-                      src={media.url}
-                      alt="Post media"
-                      className="w-full h-auto object-cover max-h-[400px]"
-                      loading="lazy"
-                    />
-                  )}
+              <div key={index} className="relative group/media rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--surface2)]">
+                {media.type === 'video' ? (
+                  <div className="relative aspect-video bg-black flex items-center justify-center">
+                    <span className="text-xs text-[var(--muted)] font-mono">VIDEO SOURCE</span>
+                    {media.thumbnail && <img src={media.thumbnail} className="absolute inset-0 w-full h-full object-cover opacity-50" />}
+                  </div>
+                ) : (
+                  <img
+                    src={media.url}
+                    alt="Post media"
+                    className="w-full h-auto object-cover max-h-[400px] hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                )}
 
-                  {/* OCR Toggle */}
-                  {media.ocr_text && (
-                    <button
-                      onClick={() => toggleOcr(index)}
-                      className="absolute bottom-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 text-white rounded-lg backdrop-blur-sm transition-all border border-white/10"
-                      title="Toggle extracted text"
-                    >
-                      <FileText size={14} className={showOcr[index] ? "text-indigo-400" : "text-white"} />
-                    </button>
-                  )}
-                </div>
+                {media.ocr_text && (
+                  <button
+                    onClick={() => toggleOcr(index)}
+                    className="absolute bottom-3 right-3 p-2 bg-black/80 text-white rounded-lg backdrop-blur-md border border-white/10 hover:bg-[var(--accent)] transition-colors"
+                  >
+                    <FileText size={14} className={showOcr[index] ? "text-white" : "text-white/70"} />
+                  </button>
+                )}
 
-                {/* OCR Text Display */}
+                {/* OCR Overlay */}
                 {showOcr[index] && media.ocr_text && (
-                  <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700/50 text-xs text-slate-600 dark:text-slate-300 font-mono overflow-x-auto">
-                    <div className="flex items-center justify-between mb-1 opacity-60">
-                      <span className="text-[10px] uppercase font-bold">Extracted Text</span>
+                  <div className="absolute inset-x-0 bottom-0 top-1/2 bg-black/90 p-4 overflow-auto border-t border-[var(--border)] animate-in slide-in-from-bottom duration-200">
+                    <div className="flex items-center gap-2 mb-2 text-[var(--accent2)] text-[10px] font-bold uppercase tracking-wider">
+                      <FileText size={12} /> Extracted Text
                     </div>
-                    {media.ocr_text}
+                    <p className="text-xs text-[var(--text)] font-mono whitespace-pre-wrap leading-relaxed opacity-80">
+                      {media.ocr_text}
+                    </p>
                   </div>
                 )}
               </div>
@@ -183,54 +200,35 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
         </div>
       )}
 
-      {/* Manual Analysis Fallback (only if not pre-calculated) */}
+      {/* Analysis Fallback */}
       {!post.sentiment && (
-        <div className="px-4 py-2 border-t border-slate-200 dark:border-slate-700/30">
+        <div className="px-5 pb-4">
           <button
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="w-full py-1.5 text-xs text-indigo-600 dark:text-indigo-300 hover:text-indigo-500 dark:hover:text-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)] hover:text-white bg-[var(--surface2)] hover:bg-[var(--accent)] rounded-xl transition-all border border-[var(--border)] hover:border-[var(--accent)] flex items-center justify-center gap-2 group/btn"
           >
-            <Sparkles size={12} />
-            {analyzing ? 'Analyzing sentiment...' : 'Analyze Sentiment'}
+            <Sparkles size={14} className="group-hover/btn:animate-pulse" />
+            {analyzing ? 'Processing...' : 'Analyze Sentiment'}
           </button>
         </div>
       )}
 
-      {/* Footer Stats & Actions */}
-      <div className="border-t border-slate-200 dark:border-slate-700/50">
-        <div className="px-4 py-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
-              <ThumbsUp size={12} />
-              <span>{post.likes}</span>
-            </div>
-            <div>{post.comments} comments</div>
-            <div>{post.shares} shares</div>
-          </div>
-
-          {post.reactions && Object.keys(post.reactions).length > 0 && (
-            <div className="flex -space-x-1">
-              {/* Simple visual representation of reactions if needed */}
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-3 px-2 pb-2">
-          <ActionButton icon={<ThumbsUp size={16} />} label="Like" />
-          <ActionButton icon={<MessageCircle size={16} />} label="Comment" />
-          <ActionButton icon={<Share2 size={16} />} label="Share" />
-        </div>
+      {/* Footer */}
+      <div className="bg-[var(--surface2)]/30 border-t border-[var(--border)] p-2 flex justify-between">
+        <ActionButton icon={<ThumbsUp size={16} />} label={post.likes ? post.likes.toString() : 'Like'} />
+        <ActionButton icon={<MessageCircle size={16} />} label={post.comments ? post.comments.toString() : 'Comment'} />
+        <ActionButton icon={<Share2 size={16} />} label={post.shares ? post.shares.toString() : 'Share'} />
       </div>
     </div>
   );
 };
 
 const ActionButton: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, label }) => (
-  <button className="flex items-center justify-center gap-2 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/30 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all group">
-    <div className="group-hover:scale-110 transition-transform">
+  <button className="flex-1 flex items-center justify-center gap-2 py-2 text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--surface2)] rounded-lg transition-all group">
+    <div className="group-hover:scale-110 group-hover:text-[var(--accent)] transition-all duration-200">
       {icon}
     </div>
-    <span className="text-xs font-medium">{label}</span>
+    <span className="text-xs font-medium font-mono">{label}</span>
   </button>
 );
