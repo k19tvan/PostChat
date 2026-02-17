@@ -165,11 +165,11 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
       {/* Header */}
       <div className="rm-header">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white shadow-lg shadow-[var(--accent)]/30">
-            <Database size={20} />
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white shadow-lg shadow-[var(--accent)]/30">
+            <Database size={22} />
           </div>
           <div>
-            <h2 className="text-lg font-bold tracking-tight">Social Feed</h2>
+            <h2 className="text-xl font-bold tracking-tight">Social Feed</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse shadow-[0_0_10px_var(--success)]" />
               <p className="text-[10px] font-['JetBrains_Mono'] uppercase tracking-wider text-[var(--muted)]">Database Connected</p>
@@ -209,7 +209,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
       </div>
 
       {/* Search Bar Area */}
-      <div className="px-8 py-4 z-10">
+      <div className="px-8 py-6 z-10">
         <form onSubmit={handleSearch} className="relative group max-w-4xl mx-auto">
           <div className="relative flex items-center">
             <input
@@ -219,7 +219,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="rm-input pl-12 pr-4 transition-all focus:border-[var(--accent)]"
             />
-            <Search className="absolute left-4 w-5 h-5 text-[var(--muted)] group-focus-within:text-[var(--accent)] transition-colors" />
+            {/* <Search className="left-4 w-5 h-5 text-[var(--muted)] group-focus-within:text-[var(--accent)] transition-colors" /> */}
 
             {searchQuery && (
               <div className="absolute right-3 flex items-center gap-2">
@@ -234,7 +234,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
 
         {/* Search results banner */}
         {advancedMode && searchResults && (
-          <div className="max-w-4xl mx-auto mt-4 px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg flex justify-between items-center">
+          <div className="max-w-4xl mx-auto mt-5 px-5 py-3 bg-[var(--surface2)] border border-[var(--border)] rounded-xl flex justify-between items-center">
             <div className="flex items-center gap-2 text-xs">
               <Sparkles size={12} className="text-[var(--accent)]" />
               <span className="text-[var(--accent2)] font-mono">AI FOUND {searchResults.length} RESULTS</span>
@@ -246,7 +246,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
 
       {/* Feed Content */}
       <div className="flex-1 overflow-y-auto relative z-0 custom-scrollbar px-6 pb-20">
-        <div className="max-w-4xl mx-auto mt-6">
+        <div className="max-w-4xl mx-auto mt-8">
           {loading || isSearching ? (
             <div className="flex flex-col items-center justify-center py-32 space-y-6">
               <div className="relative">
@@ -258,7 +258,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ theme }) => {
               </p>
             </div>
           ) : displayResults.length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {displayResults.map(post => (
                 <PostCard key={post.id} post={post as FacebookPost} onDelete={handleDelete} />
               ))}

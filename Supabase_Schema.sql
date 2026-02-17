@@ -94,3 +94,23 @@ BEGIN
     LIMIT match_count;
 END;
 $$;
+
+-- 4. Create the 'learning_paths' table
+CREATE TABLE public.learning_paths (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    goal TEXT NOT NULL,
+    roadmap_data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- Enable Row Level Security (RLS) for learning_paths
+ALTER TABLE public.learning_paths ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for learning_paths
+CREATE POLICY "Public read access learning_paths" ON public.learning_paths FOR SELECT USING (true);
+CREATE POLICY "Public insert access learning_paths" ON public.learning_paths FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public update access learning_paths" ON public.learning_paths FOR UPDATE USING (true);
+CREATE POLICY "Public delete access learning_paths" ON public.learning_paths FOR DELETE USING (true);
+
+-- Create index for goal search
+CREATE INDEX idx_learning_paths_goal ON public.learning_paths(goal);

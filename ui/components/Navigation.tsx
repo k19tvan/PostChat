@@ -13,9 +13,9 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ currentMode, onModeChange, onLogout, user, theme, toggleTheme }) => {
   return (
-    <nav className="hidden md:flex flex-col w-20 lg:w-72 bg-[var(--surface)] h-screen sticky top-0 z-40 border-r border-[var(--border)] transition-colors duration-300 font-['Syne']">
+    <nav className="hidden md:flex flex-col w-20 lg:w-72 bg-[var(--surface)] h-screen sticky top-0 z-40 border-r border-[var(--border)] transition-colors duration-300 font-['Syne'] shadow-lg">
       <div className="pt-10 pb-8 px-6 flex items-center justify-center lg:justify-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center shadow-lg shadow-[var(--accent)]/30 group hover:scale-110 transition-transform duration-300">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center shadow-lg shadow-[var(--accent)]/30 group hover:scale-110 transition-transform duration-300">
           <Activity className="text-white w-6 h-6 animate-pulse" />
         </div>
         <div className="hidden lg:flex flex-col">
@@ -28,7 +28,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentMode, onModeChang
         </div>
       </div>
 
-      <div className="flex-1 py-6 flex flex-col gap-2 px-4">
+      <div className="flex-1 py-6 flex flex-col gap-3 px-4">
         <div className="px-2 mb-2 hidden lg:block">
           <span className="text-[10px] uppercase font-bold text-[var(--muted)] tracking-widest opacity-60">Modules</span>
         </div>
@@ -107,7 +107,7 @@ const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon, label }) =
   <button
     onClick={onClick}
     className={`
-      flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden
+      flex items-center gap-3 px-5 py-3.5 rounded-xl transition-all duration-300 group relative overflow-hidden
       ${active
         ? 'bg-[var(--accent)]/10 text-[var(--accent)] shadow-[0_0_20px_rgba(124,109,250,0.15)] border border-[var(--accent)]/20'
         : 'text-[var(--muted)] hover:bg-[var(--surface2)] hover:text-[var(--text)] border border-transparent hover:border-[var(--border)]'
@@ -117,7 +117,7 @@ const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon, label }) =
     <div className={`transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
       {icon}
     </div>
-    <span className="font-semibold hidden lg:block text-[14px]">{label}</span>
+    <span className="font-semibold hidden lg:block text-[15px]">{label}</span>
 
     {active && (
       <div className="hidden lg:block absolute right-0 inset-y-0 w-1 bg-[var(--accent)] rounded-l-full shadow-[0_0_10px_var(--accent)]" />

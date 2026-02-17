@@ -612,4 +612,17 @@ Match them now.""")
         step6 = await self.step6_ui_ready(user_goal, step4.stages, step5.enriched_stages)
         print(f"   ✓ Roadmap complete with {len(step6.nodes)} nodes")
         
+        # New Step: Save to Supabase
+        if self.supabase_client:
+            print("💾 Saving roadmap to Supabase...")
+            try:
+                roadmap_data = step6.model_dump()
+                self.supabase_client.table("learning_paths").insert({
+                    "goal": user_goal,
+                    "roadmap_data": roadmap_data
+                }).execute()
+                print("   ✓ Roadmap saved to 'learning_paths' table")
+            except Exception as e:
+                print(f"   ⚠ Failed to save roadmap to Supabase: {e}")
+
         return step6.model_dump()

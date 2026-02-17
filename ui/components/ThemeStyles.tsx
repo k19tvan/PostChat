@@ -134,9 +134,9 @@ body {
   box-shadow: var(--card-shadow);
 }
 .rm-card:hover {
-  transform: translateY(-8px) scale(1.005);
+  transform: translateY(-10px) scale(1.008);
   border-color: var(--accent);
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.3);
 }
 
 .rm-btn-primary {
@@ -147,32 +147,32 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border-radius: 14px;
-  padding: 0 28px;
-  height: 52px;
+  border-radius: 16px;
+  padding: 0 32px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   letter-spacing: -0.01em;
-  box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 8px 20px -4px rgba(124, 58, 237, 0.4);
 }
 .rm-btn-primary:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 30px -5px rgba(124, 58, 237, 0.5);
-  filter: brightness(1.1);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 35px -6px rgba(124, 58, 237, 0.55);
+  filter: brightness(1.12);
 }
 .rm-btn-primary:active:not(:disabled) {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .rm-btn-secondary {
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 0 20px;
-  height: 48px;
-  border-radius: 14px;
+  padding: 0 24px;
+  height: 50px;
+  border-radius: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -184,13 +184,14 @@ body {
   background: var(--surface);
   border-color: var(--accent);
   color: var(--accent);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.2);
 }
 .rm-btn-secondary.active {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
-  box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 8px 20px -4px rgba(124, 58, 237, 0.35);
 }
 
 .rm-input {
@@ -198,10 +199,10 @@ body {
   border: 1px solid var(--border);
   color: var(--text);
   font-family: 'Outfit', sans-serif;
-  border-radius: 16px;
+  border-radius: 18px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0 24px;
-  height: 52px;
+  height: 56px;
   width: 100%;
   box-sizing: border-box;
   font-size: 15px;
@@ -209,7 +210,7 @@ body {
 .rm-input:focus {
   background: var(--surface);
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15), 0 4px 20px -2px rgba(124, 58, 237, 0.2);
   outline: none;
 }
 
@@ -218,12 +219,18 @@ body {
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--muted);
-  border-radius: 10px;
-  padding: 6px 14px;
-  font-size: 10px;
+  border-radius: 11px;
+  padding: 7px 15px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+.rm-tag:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
 }
 
 /* Custom Selection */

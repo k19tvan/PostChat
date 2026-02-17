@@ -111,23 +111,23 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ theme }) => {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 pt-8 pb-6 relative z-10 custom-scrollbar">
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-10">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex items-start gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+              className={`flex items-start gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
               {/* Avatar */}
               <div className={`
-                flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform hover:scale-105 border border-[var(--border)]
+                flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center shadow-lg transition-transform hover:scale-105 border border-[var(--border)]
                 ${msg.role === 'user'
                   ? 'bg-[var(--surface2)]'
                   : 'bg-[var(--surface2)]'
                 }
               `}>
                 {msg.role === 'user'
-                  ? <User size={20} className="text-[var(--accent)]" />
-                  : <Bot size={20} className="text-[var(--accent2)]" />
+                  ? <User size={22} className="text-[var(--accent)]" />
+                  : <Bot size={22} className="text-[var(--accent2)]" />
                 }
               </div>
 
@@ -137,7 +137,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ theme }) => {
                 ${msg.role === 'user' ? 'items-end' : 'items-start'}
               `}>
                 <div className={`
-                  px-6 py-4 rounded-2xl text-[15px] leading-relaxed shadow-xl backdrop-blur-sm border
+                  px-6 py-5 rounded-2xl text-[15px] leading-[1.7] shadow-xl backdrop-blur-sm border
                   ${msg.role === 'user'
                     ? 'bg-[var(--surface2)] border-[var(--accent)]/30 text-[var(--text)] rounded-tr-sm'
                     : msg.isError
@@ -167,24 +167,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ theme }) => {
 
                 {/* Sources - only for model messages */}
                 {msg.role === 'model' && msg.sources && msg.sources.length > 0 && (
-                  <div className="mt-2 space-y-2 w-full">
+                  <div className="mt-3 space-y-2 w-full">
                     <div className="flex items-center gap-2 px-1">
-                      <FileText size={12} className="text-[var(--accent2)]" />
-                      <span className="text-[10px] text-[var(--muted)] font-bold uppercase tracking-widest font-['JetBrains_Mono']">
+                      <FileText size={13} className="text-[var(--accent2)]" />
+                      <span className="text-[11px] text-[var(--muted)] font-bold uppercase tracking-widest font-['JetBrains_Mono']">
                         Sources ({msg.sources.length})
                       </span>
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {msg.sources.slice(0, 3).map((source, idx) => (
                         <div
                           key={idx}
-                          className="bg-[var(--surface2)] border border-[var(--border)] rounded-lg p-3 hover:border-[var(--border-hover)] transition-colors group"
+                          className="bg-[var(--surface2)] border border-[var(--border)] rounded-xl p-3.5 hover:border-[var(--border-hover)] transition-colors group"
                         >
                           <div className="flex items-start justify-between gap-3">
-                            <p className="text-xs text-[var(--muted)] line-clamp-2 flex-1 group-hover:text-[var(--text)] transition-colors font-['JetBrains_Mono'] leading-relaxed">
+                            <p className="text-[13px] text-[var(--muted)] line-clamp-2 flex-1 group-hover:text-[var(--text)] transition-colors font-['JetBrains_Mono'] leading-relaxed">
                               {source.content}
                             </p>
-                            <span className="text-[9px] text-[var(--accent)] font-mono shrink-0 bg-[var(--surface)] px-1.5 py-0.5 rounded border border-[var(--border)]">
+                            <span className="text-[10px] text-[var(--accent)] font-mono shrink-0 bg-[var(--surface)] px-2 py-1 rounded border border-[var(--border)]">
                               {Math.round(source.similarity_score * 100)}%
                             </span>
                           </div>
@@ -205,13 +205,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ theme }) => {
 
           {/* Loading indicator */}
           {isLoading && (
-            <div className="flex items-start gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="w-10 h-10 rounded-xl bg-[var(--surface2)] flex items-center justify-center border border-[var(--border)]">
-                <Bot size={20} className="text-[var(--accent2)]" />
+            <div className="flex items-start gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="w-11 h-11 rounded-xl bg-[var(--surface2)] flex items-center justify-center border border-[var(--border)]">
+                <Bot size={22} className="text-[var(--accent2)]" />
               </div>
-              <div className="bg-[var(--surface)] px-6 py-4 rounded-2xl rounded-tl-sm border border-[var(--border)] flex items-center gap-3">
-                <Loader2 className="w-4 h-4 animate-spin text-[var(--accent)]" />
-                <span className="text-sm text-[var(--muted)] font-['JetBrains_Mono'] uppercase tracking-wider text-[10px]">Processing...</span>
+              <div className="bg-[var(--surface)] px-6 py-5 rounded-2xl rounded-tl-sm border border-[var(--border)] flex items-center gap-3">
+                <Loader2 className="w-5 h-5 animate-spin text-[var(--accent)]" />
+                <span className="text-sm text-[var(--muted)] font-['JetBrains_Mono'] uppercase tracking-wider text-[11px]">Processing...</span>
               </div>
             </div>
           )}
@@ -221,7 +221,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ theme }) => {
       </div>
 
       {/* Input Area */}
-      <div className="flex-none p-6 relative z-20 border-t border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-xl">
+      <div className="flex-none p-8 relative z-20 border-t border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-xl">
         <form
           onSubmit={handleSendMessage}
           className="max-w-4xl mx-auto relative"
@@ -238,10 +238,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ theme }) => {
             <button
               type="submit"
               disabled={!inputText.trim() || isLoading}
-              className="absolute right-2 p-2 bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white rounded-lg hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-[var(--accent)]/20"
+              className="absolute right-2.5 p-3 bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white rounded-xl hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-[var(--accent)]/20 hover:scale-105"
               aria-label="Send message"
             >
-              <Send size={18} />
+              <Send size={20} />
             </button>
           </div>
         </form>
