@@ -44,7 +44,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("VITE_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY") or os.getenv("VITE_SUPABASE_ANON_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 APIFY_API_KEY = os.getenv("APIFY_API_KEY")
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "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")  # Fallback to key from crawler.py
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 if not all([SUPABASE_URL, SUPABASE_KEY, GOOGLE_API_KEY]):
     print("⚠ Warning: Missing critical environment variables (SUPABASE_*, GOOGLE_API_KEY)")
