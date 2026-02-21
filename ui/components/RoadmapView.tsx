@@ -580,7 +580,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = () => {
           <div className="rm-logo-box">
             <Layers size={20} strokeWidth={2.5} />
           </div>
-          <span className="rm-brand-text">Pathfinder</span>
+          <span className="rm-brand-text">Road Map Generation</span>
         </div>
 
         <div className="rm-search-bar">

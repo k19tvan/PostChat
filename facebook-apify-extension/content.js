@@ -353,8 +353,8 @@ function createFloatingWidget() {
     shadow.appendChild(wrapper);
 
     // Initialize Supabase from global config
-    const SUPABASE_URL = SUPABASE_CONFIG.URL;
-    const SUPABASE_KEY = SUPABASE_CONFIG.KEY;
+    const SUPABASE_URL = "https://oafgpbyevsfoajsmzjan.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ATuQQfIv8jtKSuyMMpqBpQ_8newqki5";
 
     // Simple Supabase Client for Content Script (using fetch)
     // We can't use the full @supabase/supabase-js in a content script easily without bundling.
@@ -720,8 +720,9 @@ function createFloatingWidget() {
         console.log("Starting fetch process:", { url, sessionToken: sessionToken ? "EXISTS" : "MISSING" });
 
         try {
-            console.log("Calling backend at http://localhost:8000/get_post_info");
-            const res = await fetch('http://localhost:8000/get_post_info', {
+            const baseURL = window.BACKEND_URL || 'http://localhost:8000';
+            console.log(`Calling backend at ${baseURL}/get_post_info`);
+            const res = await fetch(`${baseURL}/get_post_info`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url, apify_key: key })

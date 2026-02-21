@@ -56,3 +56,5 @@ test2.json
 # OS
 .DS_Store
 Thumbs.db
+
+./ngrok
